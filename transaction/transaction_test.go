@@ -11,7 +11,7 @@ import (
 )
 
 func TestBasicTransactionFlow(t *testing.T) {
-	var sender, recipient sdk.AccAddress
+	var sender, recipient *account.Account
 	var sk cryptotypes.PrivKey
 	var err error
 
@@ -31,7 +31,7 @@ func TestBasicTransactionFlow(t *testing.T) {
 		}
 	}
 
-	msg := messages.BankSend(sender, recipient, sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
+	msg := messages.BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
 	fee := sdk.NewCoins(sdk.NewInt64Coin("atom", 1))
 
 	txn, err := Build([]sdk.Msg{msg}, 100, fee, "", 1)

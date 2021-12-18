@@ -8,7 +8,7 @@ import (
 )
 
 func TestBankSend(t *testing.T) {
-	var sender, recipient sdk.AccAddress
+	var sender, recipient *account.Account
 	var err error
 
 	{
@@ -27,6 +27,6 @@ func TestBankSend(t *testing.T) {
 		}
 	}
 
-	msg := BankSend(sender, recipient, sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
+	msg := BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
 	t.Log(msg.String())
 }
