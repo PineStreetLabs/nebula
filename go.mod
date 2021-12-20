@@ -7,6 +7,7 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 require (
 	github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/umee-network/umee v0.3.0
+	github.com/urfave/cli v1.22.5
 )
 
 require (
@@ -28,6 +29,7 @@ require (
 	github.com/cosmos/ibc-go v1.2.2 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/danieljoos/wincred v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.2 // indirect
@@ -79,7 +81,9 @@ require (
 	github.com/rakyll/statik v0.1.7 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/regen-network/cosmos-proto v0.3.1 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/sasha-s/go-deadlock v0.2.1-0.20190427202633-1595213edefa // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/cobra v1.2.1 // indirect
