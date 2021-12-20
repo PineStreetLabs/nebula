@@ -11,6 +11,10 @@ It is common for app chains to build wrappers around bank.go,
 therefore all functions are network aware.
 */
 
-func BankSend(from, to sdk.AccAddress, coins sdk.Coins) sdk.Msg {
-	return banktypes.NewMsgSend(from, to, coins)
+func BankSend(from, to sdk.Address, coins sdk.Coins) sdk.Msg {
+	return &banktypes.MsgSend{
+		FromAddress: from.String(),
+		ToAddress:   to.String(),
+		Amount:      coins,
+	}
 }

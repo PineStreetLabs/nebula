@@ -8,13 +8,34 @@ import (
 )
 
 func TestFromPublicKey(t *testing.T) {
-	sk := NewPrivateKey()
-	acc, err := FromPublicKey(networks.GetUmeeCfg(), sk.PubKey())
+	pk, err := ParsePublicKey("AqKNXMp4eXSWIpsa/QWpNnyOCczNhKCOE/XohdspkpfI")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Logf("%s\n", acc.GetAddress().String())
+	// umee
+	{
+		acc, err := FromPublicKey(networks.GetUmeeCfg(), pk)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if acc.GetAddress().String() != "umee1gfaks828le44whkqwyxwp92rg5ewt0qaucuhq8" {
+			t.Fatalf("got %s\n", acc.GetAddress().String())
+		}
+	}
+
+	// cosmos
+	{
+		acc, err := FromPublicKey(networks.GetCosmosCfg(), pk)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if acc.GetAddress().String() != "cosmos1gfaks828le44whkqwyxwp92rg5ewt0qawwpgy4" {
+			t.Fatalf("got %s\n", acc.GetAddress().String())
+		}
+	}
 }
 
 func TestPrivateKeyFromHex(t *testing.T) {
