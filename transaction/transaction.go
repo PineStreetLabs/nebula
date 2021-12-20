@@ -1,17 +1,16 @@
 package transaction
 
 import (
+	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/umee-network/umee/app/params"
 )
 
-func Build(msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64) (client.TxBuilder, error) {
-	cfg := params.MakeEncodingConfig()
-	builder := cfg.TxConfig.NewTxBuilder()
+func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64) (client.TxBuilder, error) {
+	builder := cfg.EncodingConfig().TxConfig.NewTxBuilder()
 	if err := builder.SetMsgs(msgs...); err != nil {
 		return nil, err
 	}
@@ -32,7 +31,7 @@ func NewSignerData(chainID string, accNumber, seq uint64) *signing.SignerData {
 	}
 }
 
-func Sign(cfg client.TxConfig, txn client.TxBuilder, signerData signing.SignerData, sk cryptotypes.PrivKey) (sdk.Tx, error) {
+func Sign(cfg client.TxConfig, txn client.TxBuilder, signerData signing.SignerData, sk cryptotypes.PrivKey) (signing.Tx, error) {
 	sig, err := tx.SignWithPrivKey(cfg.SignModeHandler().DefaultMode(), signerData, txn, sk, cfg, 0)
 	if err != nil {
 		return nil, err

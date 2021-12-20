@@ -11,3 +11,7 @@ staticcheck:
 .PHONY: lint
 lint:
 	golint -set_exit_status ${GO_PKG_LIST}
+
+.PHONY: build
+build:
+	go build -o nebula cmd/nebula/*.go
