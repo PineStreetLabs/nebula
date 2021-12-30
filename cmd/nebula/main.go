@@ -12,7 +12,9 @@ func main() {
 	app.Usage = "Gateway to the Cosmos."
 
 	app.Commands = []cli.Command{
+		broadcastTxCommand,
 		newAccountCommand,
+		newBankSendCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
