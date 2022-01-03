@@ -3,8 +3,9 @@ package account
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/PineStreetLabs/nebula/networks"
 	"testing"
+
+	"github.com/PineStreetLabs/nebula/networks"
 )
 
 func TestFromPublicKey(t *testing.T) {
@@ -15,7 +16,7 @@ func TestFromPublicKey(t *testing.T) {
 
 	// umee
 	{
-		acc, err := FromPublicKey(networks.GetUmeeCfg(), pk)
+		acc, err := FromPublicKey(networks.GetUmeeCfg(), pk, 2, 1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -23,11 +24,19 @@ func TestFromPublicKey(t *testing.T) {
 		if acc.GetAddress().String() != "umee1gfaks828le44whkqwyxwp92rg5ewt0qaucuhq8" {
 			t.Fatalf("got %s\n", acc.GetAddress().String())
 		}
+
+		if acc.sequence != 1 {
+			t.Fatalf("got %d : want 1", acc.sequence)
+		}
+
+		if acc.number != 2 {
+			t.Fatalf("got %d : want 2", acc.number)
+		}
 	}
 
 	// cosmos
 	{
-		acc, err := FromPublicKey(networks.GetCosmosCfg(), pk)
+		acc, err := FromPublicKey(networks.GetCosmosCfg(), pk, 0, 1)
 		if err != nil {
 			t.Fatal(err)
 		}
