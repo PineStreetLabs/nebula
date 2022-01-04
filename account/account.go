@@ -61,3 +61,25 @@ func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq u
 		number:    accNum,
 	}, nil
 }
+
+func FromAddress(cfg *networks.Params, addr string) (*Account, error) {
+	hrp := cfg.AccountHRP()
+	buf, err := sdk.GetFromBech32(addr, hrp)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cfg.VerifyAddressFormat(buf); err != nil {
+		return nil, err
+	}
+
+	return &Account{
+		address: &Address{
+			data: buf,
+			hrp:  hrp,
+		},
+		//publicKey: pk,
+		sequence: 0,
+		number:   0,
+	}, nil
+}

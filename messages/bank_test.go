@@ -1,10 +1,11 @@
 package messages
 
 import (
+	"testing"
+
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"testing"
 )
 
 func TestBankSend(t *testing.T) {
@@ -13,7 +14,7 @@ func TestBankSend(t *testing.T) {
 
 	{
 		sk := account.NewPrivateKey()
-		sender, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey())
+		sender, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -21,7 +22,7 @@ func TestBankSend(t *testing.T) {
 
 	{
 		sk := account.NewPrivateKey()
-		recipient, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey())
+		recipient, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
