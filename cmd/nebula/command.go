@@ -37,6 +37,11 @@ var newBankSendCommand = cli.Command{
 			Usage:    "network parameters",
 			Required: true,
 		},
+		cli.StringFlag{
+			Name:     "recipient",
+			Usage:    "recipient's address",
+			Required: true,
+		},
 		cli.Int64Flag{
 			Name:     "fee",
 			Usage:    "the maximum amount the user is willing to pay in fees",
@@ -55,6 +60,16 @@ var newBankSendCommand = cli.Command{
 		cli.StringFlag{
 			Name:     "private_key",
 			Usage:    "private key to sign transaction",
+			Required: true,
+		},
+		cli.Uint64Flag{
+			Name:     "acc_number",
+			Usage:    "account number",
+			Required: true,
+		},
+		cli.Uint64Flag{
+			Name:     "acc_sequence",
+			Usage:    "account sequence",
 			Required: true,
 		},
 		cli.StringFlag{

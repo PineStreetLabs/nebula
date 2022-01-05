@@ -14,8 +14,11 @@ import (
 type Account struct {
 	address   *Address
 	publicKey cryptotypes.PubKey
-	sequence  uint64
-	number    uint64
+	// sequence is the Account Sequence. The sequence is an incremental nonce used for replay-protection per network.
+	sequence uint64
+	// number is the Account Number. This is a globally defined nonce that is associated with an account.
+	// The Account Number is initialized per network when it is "initialized" on the network (e.g. first receive).
+	number uint64
 }
 
 func (a Account) GetAddress() sdk.Address {
@@ -34,8 +37,13 @@ func (a Account) GetSequence() uint64 {
 	return a.sequence
 }
 
+// SetSequence assigns a new sequence to the Account.
+func (a *Account) SetSequence(accSeq uint64) {
+	a.sequence = accSeq
+}
+
 // FromPublicKey creates an account address using app configuration and a public key.
-func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey) (*Account, error) {
+func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	buf := pk.Address().Bytes()
 	hrp := cfg.AccountHRP()
 
@@ -49,7 +57,29 @@ func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey) (*Account, error
 			hrp:  hrp,
 		},
 		publicKey: pk,
-		sequence:  0,
-		number:    0,
+		sequence:  accSeq,
+		number:    accNum,
+	}, nil
+}
+
+func FromAddress(cfg *networks.Params, addr string) (*Account, error) {
+	hrp := cfg.AccountHRP()
+	buf, err := sdk.GetFromBech32(addr, hrp)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cfg.VerifyAddressFormat(buf); err != nil {
+		return nil, err
+	}
+
+	return &Account{
+		address: &Address{
+			data: buf,
+			hrp:  hrp,
+		},
+		//publicKey: pk,
+		sequence: 0,
+		number:   0,
 	}, nil
 }
