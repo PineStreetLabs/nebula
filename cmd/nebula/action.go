@@ -67,15 +67,15 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	recipientAcc, err := account.FromAddress(cfg, ctx.String("recipient"))
+	recipientAcc, err := account.AddressFromString(ctx.String("recipient"))
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("from: " + acc.GetAddress().String())
-	fmt.Println("to: " + recipientAcc.GetAddress().String())
+	fmt.Println("to: " + recipientAcc.String())
 
-	msg := messages.BankSend(acc.GetAddress(), recipientAcc.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uumee", 1000)))
+	msg := messages.BankSend(acc.GetAddress(), recipientAcc, sdk.NewCoins(sdk.NewInt64Coin("uumee", 1000)))
 	gasLimit := ctx.Uint64("gas_limit")
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")
