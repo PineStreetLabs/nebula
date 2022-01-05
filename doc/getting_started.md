@@ -6,7 +6,7 @@
 Create a new account.
 
 ```sh
-$ export ACCOUNT=$(./nebula new --network=umee)
+$ export ACCOUNT=$(./nebula account --network=umee)
 $ echo $ACCOUNT | jq
 {
   "address": "umee1ldxhrcu4vpr4xcgaffs587j5zunul8gu2c9cxd",
