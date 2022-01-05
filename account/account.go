@@ -10,8 +10,9 @@ import (
 // An address is associated with an account based on context (e.g. users, validators).
 // The cosmos-sdk `BaseAccount` type is used to encapsulate the account model.
 // An account might have extended functionality based on the app chain.
-
 type Account struct {
+	// Each account is identified using an Address derived from a public key.
+	// For now, we assume the Account is always represented by a user address (AccAddress).
 	address   *Address
 	publicKey cryptotypes.PubKey
 	// sequence is the Account Sequence. The sequence is an incremental nonce used for replay-protection per network.
@@ -59,27 +60,5 @@ func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq u
 		publicKey: pk,
 		sequence:  accSeq,
 		number:    accNum,
-	}, nil
-}
-
-func FromAddress(cfg *networks.Params, addr string) (*Account, error) {
-	hrp := cfg.AccountHRP()
-	buf, err := sdk.GetFromBech32(addr, hrp)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = cfg.VerifyAddressFormat(buf); err != nil {
-		return nil, err
-	}
-
-	return &Account{
-		address: &Address{
-			data: buf,
-			hrp:  hrp,
-		},
-		//publicKey: pk,
-		sequence: 0,
-		number:   0,
 	}, nil
 }

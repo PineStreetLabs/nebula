@@ -4,6 +4,14 @@ GO_PKG_LIST := $(shell go list ./...)
 test:
 	GOFLAGS=-mod=vendor go test -short ${GO_PKG_LIST}
 
+.PHONY: coverage
+coverage:
+	GOFLAGS=-mod=vendor go test -short ${GO_PKG_LIST} -coverprofile=coverage.out
+
+.PHONY: coverhtml
+coverhtml:
+	go tool cover -html=coverage.out
+
 .PHONY: staticcheck
 staticcheck:
 	GOFLAGS=-mod=vendor staticcheck ${GO_PKG_LIST}

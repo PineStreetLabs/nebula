@@ -3,7 +3,7 @@ package main
 import "github.com/urfave/cli"
 
 var newAccountCommand = cli.Command{
-	Name:     "new",
+	Name:     "account",
 	Category: "wallet",
 	Usage:    "Create a new account.",
 	Description: `
@@ -16,8 +16,13 @@ var newAccountCommand = cli.Command{
 			Required: true,
 		},
 		cli.StringFlag{
-			Name:     "from",
-			Usage:    "base64 encoded 32 byte seed",
+			Name:     "from_sk",
+			Usage:    "base64 encoded secret key",
+			Required: false,
+		},
+		cli.StringFlag{
+			Name:     "from_mnemonic",
+			Usage:    "space separated string of BIP39 mnemonics",
 			Required: false,
 		},
 	},

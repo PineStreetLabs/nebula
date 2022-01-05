@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
@@ -13,6 +14,19 @@ import (
 type Address struct {
 	data []byte
 	hrp  string
+}
+
+// AddressFromString returns an Address from its string encoding.
+func AddressFromString(addr string) (*Address, error) {
+	hrp, data, err := bech32.DecodeAndConvert(addr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Address{
+		data: data,
+		hrp:  hrp,
+	}, nil
 }
 
 // Equals returns boolean for whether two Addresses are Equal

@@ -8,10 +8,13 @@ import (
 	"fmt"
 
 	"github.com/PineStreetLabs/nebula/account"
+	"github.com/PineStreetLabs/nebula/keychain"
 	"github.com/PineStreetLabs/nebula/messages"
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/PineStreetLabs/nebula/transaction"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
@@ -27,7 +30,39 @@ func newAccount(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	sk := account.NewPrivateKey()
+	var sk *secp256k1.PrivKey
+
+	switch {
+	case ctx.IsSet("from_sk"):
+		seed := ctx.String("from_sk")
+
+		sk, err = account.PrivateKeyFromHex(seed)
+		if err != nil {
+			return err
+		}
+	case ctx.IsSet("from_mnemonic"):
+		mnemonic := ctx.String("from_mnemonic")
+
+		master, err := keychain.FromMnemonic(mnemonic, "")
+		if err != nil {
+			return err
+		}
+
+		path, err := hd.NewParamsFromPath("m/44'/118'/0'/0/0")
+		if err != nil {
+			return err
+		}
+
+		key, err := keychain.Derive(master, path)
+		if err != nil {
+			return err
+		}
+
+		sk = &secp256k1.PrivKey{Key: key}
+	default:
+		sk = account.NewPrivateKey()
+	}
+
 	acc, err := account.FromPublicKey(cfg, sk.PubKey(), 0, 0)
 	if err != nil {
 		return err
@@ -67,15 +102,15 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	recipientAcc, err := account.FromAddress(cfg, ctx.String("recipient"))
+	recipientAcc, err := account.AddressFromString(ctx.String("recipient"))
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("from: " + acc.GetAddress().String())
-	fmt.Println("to: " + recipientAcc.GetAddress().String())
+	fmt.Println("to: " + recipientAcc.String())
 
-	msg := messages.BankSend(acc.GetAddress(), recipientAcc.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uumee", 1000)))
+	msg := messages.BankSend(acc.GetAddress(), recipientAcc, sdk.NewCoins(sdk.NewInt64Coin("uumee", 1000)))
 	gasLimit := ctx.Uint64("gas_limit")
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")
