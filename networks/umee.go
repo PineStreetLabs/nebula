@@ -8,6 +8,7 @@ import (
 
 func GetUmeeCfg() *Params {
 	return &Params{
+		denom:               umee.BondDenom,
 		accountHRP:          umee.AccountAddressPrefix,
 		validatorHRP:        umee.ValidatorAddressPrefix,
 		consensusHRP:        umee.ConsNodeAddressPrefix,
@@ -18,6 +19,7 @@ func GetUmeeCfg() *Params {
 
 func GetCosmosCfg() *Params {
 	return &Params{
+		denom:               sdk.DefaultBondDenom,
 		accountHRP:          sdk.Bech32PrefixAccAddr,
 		validatorHRP:        sdk.Bech32PrefixValAddr,
 		consensusHRP:        sdk.Bech32PrefixConsAddr,

@@ -28,6 +28,6 @@ func TestBankSend(t *testing.T) {
 		}
 	}
 
-	msg := BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
+	msg := BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10))...)
 	t.Log(msg.String())
 }

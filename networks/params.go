@@ -11,11 +11,16 @@ import (
 // We choose not to use sdk.Config because of its use of init and how it is used globally in the cosmos-sdk library.
 // Params tightly scopes relevant app chain configurations to work neatly across this library.
 type Params struct {
+	denom               string
 	accountHRP          string
 	validatorHRP        string
 	consensusHRP        string
 	VerifyAddressFormat func(b []byte) error
 	encodingConfig      EncodingConfig
+}
+
+func (p Params) Denom() string {
+	return p.denom
 }
 
 func (p Params) AccountHRP() string {
