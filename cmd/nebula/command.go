@@ -82,6 +82,11 @@ var newBankSendCommand = cli.Command{
 			Usage:    "a note or comment to send with the transaction",
 			Required: true,
 		},
+		cli.Uint64Flag{
+			Name:     "amount",
+			Usage:    "unsigned integer amount to send to the recipient",
+			Required: true,
+		},
 	},
 	Action: newBankSend,
 }
