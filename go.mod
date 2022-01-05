@@ -8,6 +8,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/umee-network/umee v0.3.0
 	github.com/urfave/cli v1.22.5
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -110,6 +111,5 @@ require (
 	google.golang.org/grpc v1.42.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

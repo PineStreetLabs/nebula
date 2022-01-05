@@ -1,12 +1,13 @@
 package transaction
 
 import (
+	"testing"
+
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/messages"
 	"github.com/PineStreetLabs/nebula/networks"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"testing"
 )
 
 func TestBasicTransactionFlow(t *testing.T) {
@@ -16,7 +17,7 @@ func TestBasicTransactionFlow(t *testing.T) {
 
 	{
 		sk = account.NewPrivateKey()
-		sender, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey())
+		sender, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -24,7 +25,7 @@ func TestBasicTransactionFlow(t *testing.T) {
 
 	{
 		sk := account.NewPrivateKey()
-		recipient, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey())
+		recipient, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -33,7 +34,7 @@ func TestBasicTransactionFlow(t *testing.T) {
 	msg := messages.BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10)))
 	fee := sdk.NewCoins(sdk.NewInt64Coin("atom", 1))
 
-	txn, err := Build(networks.GetUmeeCfg(), []sdk.Msg{msg}, 100, fee, "", 1)
+	txn, err := Build(networks.GetUmeeCfg(), []sdk.Msg{msg}, 100, fee, "", 1, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
