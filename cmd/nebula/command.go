@@ -11,11 +11,6 @@ var newAccountCommand = cli.Command{
 	`,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
-		cli.StringFlag{
 			Name:     "from_sk",
 			Usage:    "base64 encoded secret key",
 			Required: false,
@@ -37,11 +32,6 @@ var newBankSendCommand = cli.Command{
 	Creates a single bank send transaction and returns the serialized transaction in bytes.
 	`,
 	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
 		cli.StringFlag{
 			Name:     "recipient",
 			Usage:    "recipient's address",
@@ -100,25 +90,26 @@ var broadcastTxCommand = cli.Command{
 	`,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
-		cli.StringFlag{
 			Name:     "tx_hex",
 			Usage:    "Serialized transaction in hex",
 			Required: true,
 		},
+	},
+	Action: broadcastTx,
+}
+
+var balanceCommand = cli.Command{
+	Name:     "balance",
+	Category: "data",
+	Usage:    "<address>",
+	Description: `
+	Checks balance for an account.
+	`,
+	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "host",
-			Usage:    "host name",
-			Required: true,
-		},
-		cli.IntFlag{
-			Name:     "port",
-			Usage:    "port number",
+			Name:     "address",
 			Required: true,
 		},
 	},
-	Action: broadcastTx,
+	Action: balance,
 }
