@@ -139,6 +139,8 @@ func getNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 		return networks.GetCosmosCfg(), nil
 	case networks.Umee:
 		return networks.GetUmeeCfg(), nil
+	case "":
+		return nil, errors.New("missing network")
 	default:
 		return nil, fmt.Errorf("%w : %s", errUnsupportedNetwork, network)
 	}

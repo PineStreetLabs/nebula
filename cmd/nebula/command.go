@@ -111,5 +111,62 @@ var balanceCommand = cli.Command{
 			Required: true,
 		},
 	},
-	Action: balance,
+	Action: queryBalance,
+}
+
+var accountCommand = cli.Command{
+	Name:     "account_info",
+	Category: "data",
+	Usage:    "<address>",
+	Description: `
+	Checks details for an account.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "address",
+			Required: true,
+		},
+	},
+	Action: queryAccount,
+}
+
+var bestBlockHeightCommand = cli.Command{
+	Name:     "bestblockheight",
+	Category: "data",
+	Description: `
+	Gets latest blockheight for a network.
+	`,
+	Action: queryBestBlockheight,
+}
+
+var blockByHeightCommand = cli.Command{
+	Name:     "blockbyheight",
+	Category: "data",
+	Usage:    "<height>",
+	Description: `
+	Gets a block by height.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "height",
+			Required: true,
+		},
+	},
+	Action: queryBlockByHeight,
+}
+
+var blockByHashCommand = cli.Command{
+	Name:     "blockbyhash",
+	Category: "data",
+	Usage:    "<hash>",
+	Description: `
+	Gets a block by hash.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "hash",
+			Required: true,
+		},
+	},
+	Action: queryBlockByHash,
 }

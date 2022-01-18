@@ -4,11 +4,13 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/cosmos/cosmos-sdk/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"google.golang.org/grpc"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	tendermintHttp "github.com/tendermint/tendermint/rpc/client/http"
@@ -59,8 +61,8 @@ func NewClient(cfg *Config) (*Client, error) {
 }
 
 // BroadcastTransaction broadcasta a transaction using a node daemon.
-func (c *Client) BroadcastTransaction(transaction []byte) (*coretypes.ResultBroadcastTx, error) {
-	resp, err := c.rpcClient.BroadcastTxSync(context.Background(), transaction)
+func (c *Client) BroadcastTransaction(ctx context.Context, transaction []byte) (*coretypes.ResultBroadcastTx, error) {
+	resp, err := c.rpcClient.BroadcastTxSync(ctx, transaction)
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +71,10 @@ func (c *Client) BroadcastTransaction(transaction []byte) (*coretypes.ResultBroa
 }
 
 // Balance returns the account balance for a given network.
-func (c *Client) Balance(ncfg *networks.Params, address string) (*types.Coin, error) {
+func (c *Client) Balance(ctx context.Context, ncfg *networks.Params, address string) (*types.Coin, error) {
 	client := bankTypes.NewQueryClient(c.grpcClient)
 
-	resp, err := client.Balance(context.Background(), &bankTypes.QueryBalanceRequest{
+	resp, err := client.Balance(ctx, &bankTypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   ncfg.Denom(),
 	})
@@ -81,4 +83,46 @@ func (c *Client) Balance(ncfg *networks.Params, address string) (*types.Coin, er
 	}
 
 	return resp.GetBalance(), nil
+}
+
+// Transaction returns the transaction using its hash.
+func (c *Client) Transaction(ctx context.Context, txID []byte) (*coretypes.ResultTx, error) {
+	return c.rpcClient.Tx(ctx, txID, true)
+}
+
+// BestBlockHeight returns the current network block height.
+func (c *Client) BestBlockHeight(ctx context.Context) (int64, error) {
+	status, err := c.rpcClient.Status(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return status.SyncInfo.LatestBlockHeight, nil
+}
+
+// BlockByHeight returns a block given its height.
+func (c *Client) BlockByHeight(ctx context.Context, height int64) (*coretypes.ResultBlock, error) {
+	return c.rpcClient.Block(ctx, &height)
+}
+
+// BlockByHash returns a block given its hash.
+func (c *Client) BlockByHash(ctx context.Context, hash []byte) (*coretypes.ResultBlock, error) {
+	return c.rpcClient.BlockByHash(ctx, hash)
+}
+
+// Account returns account details.
+func (c *Client) Account(ctx context.Context, nCfg *networks.Params, address string) (*account.Account, error) {
+	client := authtypes.NewQueryClient(c.grpcClient)
+	resp, err := client.Account(ctx, &authtypes.QueryAccountRequest{
+		Address: address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var acc authtypes.AccountI
+	if err := nCfg.EncodingConfig().InterfaceRegistry.UnpackAny(resp.Account, &acc); err != nil {
+		return nil, err
+	}
+
+	return account.NewAccount(acc.GetAddress().String(), acc.GetPubKey(), acc.GetAccountNumber(), acc.GetSequence())
 }

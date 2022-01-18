@@ -15,18 +15,17 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "rpc",
-			Value: "",
+			Value: "http://127.0.0.1:26657",
 			Usage: "the host:port of the JSON-RPC server",
 		},
 		cli.StringFlag{
 			Name:  "grpc",
-			Value: "",
+			Value: "127.0.0.1:9090",
 			Usage: "the host:port of the gRPC sever",
 		},
 		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
+			Name:  "network",
+			Usage: "network parameters",
 		},
 	}
 	app.Commands = []cli.Command{
@@ -34,6 +33,10 @@ func main() {
 		newAccountCommand,
 		newBankSendCommand,
 		balanceCommand,
+		accountCommand,
+		bestBlockHeightCommand,
+		blockByHashCommand,
+		blockByHeightCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
