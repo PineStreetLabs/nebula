@@ -11,11 +11,6 @@ var newAccountCommand = cli.Command{
 	`,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
-		cli.StringFlag{
 			Name:     "from_sk",
 			Usage:    "base64 encoded secret key",
 			Required: false,
@@ -37,11 +32,6 @@ var newBankSendCommand = cli.Command{
 	Creates a single bank send transaction and returns the serialized transaction in bytes.
 	`,
 	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
 		cli.StringFlag{
 			Name:     "recipient",
 			Usage:    "recipient's address",
@@ -100,25 +90,83 @@ var broadcastTxCommand = cli.Command{
 	`,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "network",
-			Usage:    "network parameters",
-			Required: true,
-		},
-		cli.StringFlag{
 			Name:     "tx_hex",
 			Usage:    "Serialized transaction in hex",
 			Required: true,
 		},
+	},
+	Action: broadcastTx,
+}
+
+var balanceCommand = cli.Command{
+	Name:     "balance",
+	Category: "data",
+	Usage:    "<address>",
+	Description: `
+	Checks balance for an account.
+	`,
+	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:     "host",
-			Usage:    "host name",
-			Required: true,
-		},
-		cli.IntFlag{
-			Name:     "port",
-			Usage:    "port number",
+			Name:     "address",
 			Required: true,
 		},
 	},
-	Action: broadcastTx,
+	Action: queryBalance,
+}
+
+var accountCommand = cli.Command{
+	Name:     "account_info",
+	Category: "data",
+	Usage:    "<address>",
+	Description: `
+	Checks details for an account.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "address",
+			Required: true,
+		},
+	},
+	Action: queryAccount,
+}
+
+var bestBlockHeightCommand = cli.Command{
+	Name:     "bestblockheight",
+	Category: "data",
+	Description: `
+	Gets latest blockheight for a network.
+	`,
+	Action: queryBestBlockheight,
+}
+
+var blockByHeightCommand = cli.Command{
+	Name:     "blockbyheight",
+	Category: "data",
+	Usage:    "<height>",
+	Description: `
+	Gets a block by height.
+	`,
+	Flags: []cli.Flag{
+		cli.Int64Flag{
+			Name:     "height",
+			Required: true,
+		},
+	},
+	Action: queryBlockByHeight,
+}
+
+var blockByHashCommand = cli.Command{
+	Name:     "blockbyhash",
+	Category: "data",
+	Usage:    "<hash>",
+	Description: `
+	Gets a block by hash.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "hash",
+			Required: true,
+		},
+	},
+	Action: queryBlockByHash,
 }

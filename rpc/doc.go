@@ -1,2 +1,2 @@
-// Package rpc contains a gRPC client to communicate with a node daemon's gRPC server.
+// Package rpc contains a rpc client to communicate with a node daemon's JSON-RPC and gRPC servers.
 package rpc

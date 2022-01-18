@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -13,13 +12,10 @@ import (
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/PineStreetLabs/nebula/transaction"
 	"github.com/PineStreetLabs/nebula/utils"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/tendermint/tendermint/rpc/client/http"
 	"github.com/urfave/cli"
 )
 
@@ -133,30 +129,18 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	broadcastTxRequest := tx.BroadcastTxRequest{
-		TxBytes: serializedTxn,
-		Mode:    tx.BroadcastMode_BROADCAST_MODE_SYNC,
-	}
-	rpcClient, err := http.New("http://0.0.0.0:26657", "/")
-	if err != nil {
-		return err
-	}
-
-	response, err := client.TxServiceBroadcast(context.Background(), client.Context{Client: rpcClient}, &broadcastTxRequest)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("%v\n", response.TxResponse)
+	fmt.Printf("%x\n", serializedTxn)
 	return nil
 }
 
 func getNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
-	switch network := ctx.String("network"); network {
+	switch network := ctx.GlobalString("network"); network {
 	case networks.Cosmos:
 		return networks.GetCosmosCfg(), nil
 	case networks.Umee:
 		return networks.GetUmeeCfg(), nil
+	case "":
+		return nil, errors.New("missing network")
 	default:
 		return nil, fmt.Errorf("%w : %s", errUnsupportedNetwork, network)
 	}
