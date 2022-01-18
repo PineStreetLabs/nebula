@@ -42,7 +42,6 @@ type Client struct {
 func NewClient(cfg *Config) (*Client, error) {
 	httpClient := &http.Client{}
 
-	// todo, right path?
 	rpcClient, err := tendermintHttp.NewWithClient(cfg.rpcAddress, "/", httpClient)
 	if err != nil {
 		return nil, err
@@ -60,7 +59,7 @@ func NewClient(cfg *Config) (*Client, error) {
 	}, nil
 }
 
-// BroadcastTransaction broadcasta a transaction using a node daemon.
+// BroadcastTransaction broadcasts a transaction using a node daemon.
 func (c *Client) BroadcastTransaction(ctx context.Context, transaction []byte) (*coretypes.ResultBroadcastTx, error) {
 	resp, err := c.rpcClient.BroadcastTxSync(ctx, transaction)
 	if err != nil {
