@@ -37,6 +37,7 @@ func main() {
 		bestBlockHeightCommand,
 		blockByHashCommand,
 		blockByHeightCommand,
+		transactionCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
