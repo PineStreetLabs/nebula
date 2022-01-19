@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	umee "github.com/umee-network/umee/app"
 	"github.com/umee-network/umee/app/params"
+	leverageTypes "github.com/umee-network/umee/x/leverage/types"
 )
 
 func GetUmeeCfg() *Params {
@@ -15,6 +16,7 @@ func GetUmeeCfg() *Params {
 	encCfg := params.MakeEncodingConfig()
 	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
+	leverageTypes.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	return &Params{
 		denom:               umee.BondDenom,

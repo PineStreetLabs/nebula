@@ -16,7 +16,7 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
 ## Testing
 [Starport](https://github.com/tendermint/starport) is the dedicated tool for integration and e2e testing.
 
-Starport allows local development with specific accounts funded at gensis.
+Starport allows local development with specific accounts funded at gensis. Make sure are running umee v0.3.0
 
     starport chain serve -c ./config.yml
 

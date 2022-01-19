@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
 
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/urfave/cli"
@@ -37,7 +38,7 @@ func queryBalance(ctx *cli.Context) error {
 		return err
 	}
 
-	params, err := getNetworkConfig(ctx)
+	params, err := common.GetNetworkConfig(ctx)
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func queryAccount(ctx *cli.Context) error {
 		return err
 	}
 
-	params, err := getNetworkConfig(ctx)
+	params, err := common.GetNetworkConfig(ctx)
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@
 Create a new account.
 
 ```sh
-$ export ACCOUNT=$(./nebula account --network=umee)
+$ export ACCOUNT=$(./nebula --network=umee account)
 $ echo $ACCOUNT | jq
 {
   "address": "umee1ldxhrcu4vpr4xcgaffs587j5zunul8gu2c9cxd",
@@ -43,5 +43,14 @@ Try sending a transaction.
 
 ```sh
 $ export SK=$(echo $ACCOUNT | jq -r .private_key)
-$ nebula bank_send --network=umee --recipient=$ADDRESS --fee=1 --gas_limit=400000 --timeout_height=100000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo=""
+$ nebula --network=umee bank_send --recipient=$ADDRESS --amount=1000 --fee=1 --gas_limit=400000 --timeout_height=100000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo="bank send"
+```
+
+Umee Leverage transactions
+```sh
+$ export SK=$(echo $ACCOUNT | jq -r .private_key)
+$ nebula --network=umee lend_asset --amount=100 --fee=1 --gas_limit=400000 --timeout_height=100000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo="lend asset"
+$ nebula --network=umee withdraw_asset --amount=100 --fee=1 --gas_limit=400000 --timeout_height=1000000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo="withdraw asset"
+$ nebula --network=umee set_collateral --enabled=true --fee=1 --gas_limit=400000 --timeout_height=1000000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo="set collateral"
+$ nebula --network=umee repay_asset --amount=100 --fee=1 --gas_limit=400000 --timeout_height=1000000 --private_key=$SK --acc_number=$ACC_NUMBER --acc_sequence=0 --memo="repay asset"
 ```
