@@ -28,7 +28,13 @@ func broadcastTx(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("%v\n", response)
+	resp, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
+
 	return nil
 }
 
@@ -128,6 +134,32 @@ func queryBlockByHash(ctx *cli.Context) error {
 	}
 
 	fmt.Printf("%v\n", response)
+
+	return nil
+}
+
+func queryTransaction(ctx *cli.Context) error {
+	rpcClient, err := rpcClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	hash, err := hex.DecodeString(ctx.String("txid"))
+	if err != nil {
+		return err
+	}
+
+	response, err := rpcClient.Transaction(context.Background(), hash)
+	if err != nil {
+		return err
+	}
+
+	resp, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s\n", resp)
 
 	return nil
 }

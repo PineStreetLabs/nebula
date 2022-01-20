@@ -21,7 +21,7 @@ $ export ADDRESS=$(echo $ACCOUNT | jq -r .address)
 $ curl -X POST http://localhost:4500 -d '{"address":"'"$ADDRESS"'","coins":["2000uumee"]}'
 ```
 
-Check the balance and retreive the Account Number.
+Check the balance and retrieve the Account Number.
 
 ```sh
 $ curl http://localhost:1317/auth/accounts/$ADDRESS
@@ -37,6 +37,19 @@ $ curl http://localhost:1317/auth/accounts/$ADDRESS
 }
 $ export ACC_NUMBER=$(curl http://localhost:1317/auth/accounts/$ADDRESS | jq -r .result.value.account_number)
 13
+```
+
+Alternatively, check the balance and Account number using nebula.
+```sh
+$ nebula --network=umee balance -address=$ADDRESS
+2000uumee
+$ nebula --network=umee account_info -address=$ADDRESS | jq
+{
+  "address": "umee1x7kxvhzruz3q7tlt5x5hx2yjgqyzk37wkmlljv",
+  "publickey": "",
+  "sequence": 0,
+  "number": 13,
+}
 ```
 
 Try sending a transaction.

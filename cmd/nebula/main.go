@@ -38,6 +38,7 @@ func main() {
 		bestBlockHeightCommand,
 		blockByHashCommand,
 		blockByHeightCommand,
+    transactionCommand,
 		umee.LendAssetCommand,
 		umee.WithdrawAssetCommand,
 		umee.SetCollateralCommand,

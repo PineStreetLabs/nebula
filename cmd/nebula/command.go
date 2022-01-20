@@ -136,3 +136,19 @@ var blockByHashCommand = cli.Command{
 	},
 	Action: queryBlockByHash,
 }
+
+var transactionCommand = cli.Command{
+	Name:     "transaction",
+	Category: "data",
+	Usage:    "<txid>",
+	Description: `
+	Gets a transaction by its ID.
+	`,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "txid",
+			Required: true,
+		},
+	},
+	Action: queryTransaction,
+}
