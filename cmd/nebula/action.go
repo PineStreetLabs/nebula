@@ -3,13 +3,12 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
 
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/keychain"
 	"github.com/PineStreetLabs/nebula/messages"
-	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/PineStreetLabs/nebula/transaction"
 	"github.com/PineStreetLabs/nebula/utils"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -19,10 +18,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-var errUnsupportedNetwork = errors.New("unsupported network")
-
 func newAccount(ctx *cli.Context) (err error) {
-	cfg, err := getNetworkConfig(ctx)
+	cfg, err := common.GetNetworkConfig(ctx)
 	if err != nil {
 		return err
 	}
@@ -84,7 +81,7 @@ func newAccount(ctx *cli.Context) (err error) {
 }
 
 func newBankSend(ctx *cli.Context) (err error) {
-	cfg, err := getNetworkConfig(ctx)
+	cfg, err := common.GetNetworkConfig(ctx)
 	if err != nil {
 		return err
 	}
@@ -131,17 +128,4 @@ func newBankSend(ctx *cli.Context) (err error) {
 
 	fmt.Printf("%x\n", serializedTxn)
 	return nil
-}
-
-func getNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
-	switch network := ctx.GlobalString("network"); network {
-	case networks.Cosmos:
-		return networks.GetCosmosCfg(), nil
-	case networks.Umee:
-		return networks.GetUmeeCfg(), nil
-	case "":
-		return nil, errors.New("missing network")
-	default:
-		return nil, fmt.Errorf("%w : %s", errUnsupportedNetwork, network)
-	}
 }

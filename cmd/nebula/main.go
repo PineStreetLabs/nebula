@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 
-	rpc "github.com/PineStreetLabs/nebula/rpc"
+	"github.com/PineStreetLabs/nebula/cmd/nebula/umee"
+	"github.com/PineStreetLabs/nebula/rpc"
 	"github.com/urfave/cli"
 )
 
@@ -37,7 +38,11 @@ func main() {
 		bestBlockHeightCommand,
 		blockByHashCommand,
 		blockByHeightCommand,
-		transactionCommand,
+    transactionCommand,
+		umee.LendAssetCommand,
+		umee.WithdrawAssetCommand,
+		umee.SetCollateralCommand,
+		umee.RepayAssetCommand,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
