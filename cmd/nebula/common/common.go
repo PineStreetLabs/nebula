@@ -3,12 +3,14 @@ package common
 import (
 	"errors"
 	"fmt"
+
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/urfave/cli"
 )
 
 var errUnsupportedNetwork = errors.New("unsupported network")
 
+// GetNetworkConfig uses the cli.Context to retrieve the network variable.
 func GetNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 	switch network := ctx.GlobalString("network"); network {
 	case networks.Cosmos:
@@ -22,6 +24,7 @@ func GetNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 	}
 }
 
+// TxFlags is a slice of available flags related to transaction construction.
 var TxFlags = []cli.Flag{
 	// account info
 	cli.StringFlag{

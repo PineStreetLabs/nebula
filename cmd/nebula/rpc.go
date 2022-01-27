@@ -5,11 +5,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+
 	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
 
-	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/urfave/cli"
-	"google.golang.org/grpc"
 )
 
 func broadcastTx(ctx *cli.Context) error {
@@ -161,21 +160,5 @@ func queryTransaction(ctx *cli.Context) error {
 
 	fmt.Printf("%s\n", resp)
 
-	return nil
-}
-
-func simulateTx(grpcConn *grpc.ClientConn, txBytes []byte) error {
-	txClient := tx.NewServiceClient(grpcConn)
-	grpcRes, err := txClient.Simulate(
-		context.Background(),
-		&tx.SimulateRequest{
-			TxBytes: txBytes,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(grpcRes.GasInfo)
 	return nil
 }

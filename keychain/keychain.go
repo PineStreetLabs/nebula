@@ -36,11 +36,14 @@ func FromSeed(seed []byte) (*ExtendedKey, error) {
 	}, nil
 }
 
+// Derive does child key derivation with the provided extended key and BIP44 path.
+// The function returns the child in bytes.
 func Derive(extKey *ExtendedKey, path *hd.BIP44Params) ([]byte, error) {
 	// The underlying function requires a strict BIP44 path.
 	return hd.DerivePrivateKeyForPath(extKey.key, extKey.chaincode, path.String())
 }
 
+// FromMnemonic creates a new extended key from a BIP39 mnemonic phrase.
 func FromMnemonic(mnemonic, bip39Passphrase string) (*ExtendedKey, error) {
 	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, bip39Passphrase)
 	if err != nil {

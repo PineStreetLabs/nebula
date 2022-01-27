@@ -18,7 +18,7 @@ staticcheck:
 
 .PHONY: lint
 lint:
-	golint -set_exit_status ${GO_PKG_LIST}
+	golangci-lint run -v --exclude-use-default=false --disable-all --enable=golint
 
 .PHONY: build
 build:
