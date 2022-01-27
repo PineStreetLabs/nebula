@@ -11,6 +11,7 @@ import (
 	leverageTypes "github.com/umee-network/umee/x/leverage/types"
 )
 
+// GetUmeeCfg returns the network parameters for the Umee network.
 func GetUmeeCfg() *Params {
 	modules := umee.ModuleBasics
 	encCfg := params.MakeEncodingConfig()
@@ -33,6 +34,7 @@ func GetUmeeCfg() *Params {
 	}
 }
 
+// GetCosmosCfg returns the network parameters for the Cosmos Hub network.
 func GetCosmosCfg() *Params {
 	modules := module.NewBasicManager(
 		bank.AppModuleBasic{},

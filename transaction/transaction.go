@@ -11,6 +11,7 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
+// Build crafts transaction for a given network.
 func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64, signerPubKeys []cryptotypes.PubKey) (client.TxBuilder, error) {
 	builder := cfg.EncodingConfig().TxConfig.NewTxBuilder()
 	if err := builder.SetMsgs(msgs...); err != nil {
@@ -36,11 +37,14 @@ func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins
 		}
 	}
 
-	builder.SetSignatures(signers...)
+	if err := builder.SetSignatures(signers...); err != nil {
+		return nil, err
+	}
 
 	return builder, nil
 }
 
+// NewSignerData creates SignerData that is required for signature creation.
 func NewSignerData(chainID string, accNumber, accSeq uint64) *authsigning.SignerData {
 	return &authsigning.SignerData{
 		ChainID:       chainID,
@@ -49,6 +53,7 @@ func NewSignerData(chainID string, accNumber, accSeq uint64) *authsigning.Signer
 	}
 }
 
+// Sign accepts a valid transaction and signs it.
 func Sign(cfg client.TxConfig, txn client.TxBuilder, signerData authsigning.SignerData, sk cryptotypes.PrivKey) (signing.Tx, error) {
 	sig, err := tx.SignWithPrivKey(cfg.SignModeHandler().DefaultMode(), signerData, txn, sk, cfg, signerData.Sequence)
 	if err != nil {
@@ -62,18 +67,22 @@ func Sign(cfg client.TxConfig, txn client.TxBuilder, signerData authsigning.Sign
 	return txn.GetTx(), nil
 }
 
+// FromBytes deserializes a transaction.
 func FromBytes(cfg client.TxConfig, txn []byte) (sdk.Tx, error) {
 	return cfg.TxDecoder()(txn)
 }
 
+// FromJSON deserializes a transaction.
 func FromJSON(cfg client.TxConfig, txn []byte) (sdk.Tx, error) {
 	return cfg.TxJSONDecoder()(txn)
 }
 
+// Serialize serializes a transaction to bytes.
 func Serialize(cfg client.TxConfig, txn signing.Tx) ([]byte, error) {
 	return cfg.TxEncoder()(txn)
 }
 
+// SerializeJSON serializes a transaction to JSON bytes.
 func SerializeJSON(cfg client.TxConfig, txn signing.Tx) ([]byte, error) {
 	return cfg.TxJSONEncoder()(txn)
 }

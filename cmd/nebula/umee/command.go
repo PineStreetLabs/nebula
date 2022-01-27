@@ -1,8 +1,11 @@
 package umee
 
-import "github.com/urfave/cli"
-import "github.com/PineStreetLabs/nebula/cmd/nebula/common"
+import (
+	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
+	"github.com/urfave/cli"
+)
 
+// LendAssetCommand exposes functionality to lend assets on Umee.
 var LendAssetCommand = cli.Command{
 	Name:     "lend_asset",
 	Category: "umee",
@@ -21,6 +24,7 @@ var LendAssetCommand = cli.Command{
 	Action: lendAsset,
 }
 
+// WithdrawAssetCommand exposes functionality to withdraw assets on Umee.
 var WithdrawAssetCommand = cli.Command{
 	Name:     "withdraw_asset",
 	Category: "umee",
@@ -39,6 +43,7 @@ var WithdrawAssetCommand = cli.Command{
 	Action: withdrawAsset,
 }
 
+// SetCollateralCommand exposes functionality to set collateral on Umee.
 var SetCollateralCommand = cli.Command{
 	Name:     "set_collateral",
 	Category: "umee",
@@ -57,6 +62,7 @@ var SetCollateralCommand = cli.Command{
 	Action: setCollateral,
 }
 
+// RepayAssetCommand exposes functionality to repay assets on Umee.
 var RepayAssetCommand = cli.Command{
 	Name:     "repay_asset",
 	Category: "umee",

@@ -22,26 +22,32 @@ type Params struct {
 	encodingConfig      EncodingConfig
 }
 
+// Denom gets the denom.
 func (p Params) Denom() string {
 	return p.denom
 }
 
+// AccountHRP gets the human readable prefix for an Account's address.
 func (p Params) AccountHRP() string {
 	return p.accountHRP
 }
 
+// ValidatorHRP gets the human readable prefix for an Account's validator address.
 func (p Params) ValidatorHRP() string {
 	return p.validatorHRP
 }
 
+// ConsensusHRP gets the human readable prefix for an Account's consensus address.
 func (p Params) ConsensusHRP() string {
 	return p.consensusHRP
 }
 
+// EncodingConfig gets the encoding configuration for the network.
 func (p Params) EncodingConfig() EncodingConfig {
 	return p.encodingConfig
 }
 
+// EncodingConfig encapsulates the encoding config of a network.
 type EncodingConfig struct {
 	InterfaceRegistry types.InterfaceRegistry
 	Marshaler         codec.Codec
@@ -49,6 +55,7 @@ type EncodingConfig struct {
 	Amino             *codec.LegacyAmino
 }
 
+// MakeEncodingConfig creates a new EncodingConfig.
 func MakeEncodingConfig() EncodingConfig {
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
@@ -65,6 +72,8 @@ func MakeEncodingConfig() EncodingConfig {
 
 // Supported Networks
 const (
+	// Cosmos identifier.
 	Cosmos string = "cosmos"
-	Umee   string = "umee"
+	// Umee identifier.
+	Umee string = "umee"
 )

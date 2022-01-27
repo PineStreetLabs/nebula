@@ -11,6 +11,7 @@ It is common for app chains to build wrappers around bank.go,
 therefore all functions are network aware.
 */
 
+// BankSend returns a MsgSend message.
 func BankSend(from, to sdk.Address, coins ...sdk.Coin) *banktypes.MsgSend {
 	return &banktypes.MsgSend{
 		FromAddress: from.String(),
@@ -19,6 +20,7 @@ func BankSend(from, to sdk.Address, coins ...sdk.Coin) *banktypes.MsgSend {
 	}
 }
 
+// NewInput is a helper function to create inputs.
 func NewInput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Input {
 	return &banktypes.Input{
 		Address: addr.String(),
@@ -26,6 +28,7 @@ func NewInput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Input {
 	}
 }
 
+// NewOutput is a helper function to create outputs.
 func NewOutput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Output {
 	return &banktypes.Output{
 		Address: addr.String(),
@@ -33,6 +36,7 @@ func NewOutput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Output {
 	}
 }
 
+// BankMultiSend returns a MsgMultiSend message.
 func BankMultiSend(ins []banktypes.Input, outs []banktypes.Output) *banktypes.MsgMultiSend {
 	return &banktypes.MsgMultiSend{
 		Inputs:  ins,
