@@ -13,6 +13,15 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
 | Cosmos Hub (ATOM) | [Cosmos](https://github.com/cosmos/gaia)| - |
 | Umee |[Umee](https://github.com/umee-network/umee) | v0.3.0|
 
+## Usage
+
+    make build
+
+Documentation for usage is available in `/doc`:
+
+* [Getting Started](/doc/getting_started.md)
+
+
 ## Testing
 [Starport](https://github.com/tendermint/starport) is the dedicated tool for integration and e2e testing.
 
