@@ -2,6 +2,7 @@ package umee
 
 import (
 	"fmt"
+
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
 	"github.com/PineStreetLabs/nebula/messages/umee"
@@ -19,7 +20,7 @@ func lendAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgLendAsset(acc.GetAddress(), utils.NewCoin(cfg, sdk.NewIntFromUint64(ctx.Uint64("amount"))))
+	msg := umee.NewMsgLendAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }
@@ -30,7 +31,7 @@ func withdrawAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgWithdrawAsset(acc.GetAddress(), utils.NewCoin(cfg, sdk.NewIntFromUint64(ctx.Uint64("amount"))))
+	msg := umee.NewMsgWithdrawAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }
@@ -52,7 +53,7 @@ func repayAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgRepayAsset(acc.GetAddress(), utils.NewCoin(cfg, sdk.NewIntFromUint64(ctx.Uint64("amount"))))
+	msg := umee.NewMsgRepayAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }

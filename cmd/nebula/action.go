@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+
 	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
 
 	"github.com/PineStreetLabs/nebula/account"
@@ -104,7 +105,7 @@ func newBankSend(ctx *cli.Context) (err error) {
 	fmt.Println("from: " + acc.GetAddress().String())
 	fmt.Println("to: " + recipientAcc.String())
 
-	msg := messages.BankSend(acc.GetAddress(), recipientAcc, utils.NewCoin(cfg, sdk.NewIntFromUint64(ctx.Uint64("amount"))))
+	msg := messages.BankSend(acc.GetAddress(), recipientAcc, utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
 	gasLimit := ctx.Uint64("gas_limit")
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")
