@@ -122,10 +122,19 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 	}, nil
 }
 
+func ValidatorFromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+	hrp := cfg.ValidatorHRP()
+	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+}
+
 // FromPublicKey creates an account address using app configuration and a public key.
 func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
-	buf := pk.Address().Bytes()
 	hrp := cfg.AccountHRP()
+	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+}
+
+func fromPublicKey(hrp string, cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+	buf := pk.Address().Bytes()
 
 	if err := cfg.VerifyAddressFormat(buf); err != nil {
 		return nil, err
