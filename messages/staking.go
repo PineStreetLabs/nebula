@@ -6,26 +6,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// StakingCreateValidator returns a MsgCreateValidator message.
 func StakingCreateValidator(validator sdk.ValAddress, pk cryptotypes.PubKey, value sdk.Coin, desc stakingtypes.Description, commission stakingtypes.CommissionRates, minSelfDelegation sdk.Int) (*stakingtypes.MsgCreateValidator, error) {
-	// pkAny, err := codectypes.NewAnyWithValue(pk)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// sdk.ValAddress(validator)
-
 	return stakingtypes.NewMsgCreateValidator(validator, pk, value, desc, commission, minSelfDelegation)
-	// return &stakingtypes.MsgCreateValidator{
-	// 	Description:       desc,
-	// 	DelegatorAddress:  validator.String(),
-	// 	ValidatorAddress:  validator.String(),
-	// 	Pubkey:            pkAny,
-	// 	Value:             value,
-	// 	Commission:        commission,
-	// 	MinSelfDelegation: minSelfDelegation,
-	// }, nil
 }
 
+// StakingEditValidator returns a MsgEditValidator message.
 func StakingEditValidator(validator sdk.Address, desc stakingtypes.Description, rate sdk.Dec, minSelfDelegation sdk.Int) stakingtypes.MsgEditValidator {
 	return stakingtypes.MsgEditValidator{
 		Description:       desc,
@@ -35,6 +21,7 @@ func StakingEditValidator(validator sdk.Address, desc stakingtypes.Description, 
 	}
 }
 
+// StakingDelegate returns a MsgDelegate message.
 func StakingDelegate(delegate sdk.Address, validator sdk.Address, amount sdk.Coin) stakingtypes.MsgDelegate {
 	return stakingtypes.MsgDelegate{
 		DelegatorAddress: delegate.String(),
@@ -43,6 +30,7 @@ func StakingDelegate(delegate sdk.Address, validator sdk.Address, amount sdk.Coi
 	}
 }
 
+// StakingUndelegate returns a MsgUndelegate message.
 func StakingUndelegate(delegate sdk.Address, validator sdk.Address, amount sdk.Coin) stakingtypes.MsgUndelegate {
 	return stakingtypes.MsgUndelegate{
 		DelegatorAddress: delegate.String(),
@@ -51,6 +39,7 @@ func StakingUndelegate(delegate sdk.Address, validator sdk.Address, amount sdk.C
 	}
 }
 
+// StakingBeginRedelgate returns a MsgBeginRedelegate message.
 func StakingBeginRedelgate(delegate, validatorSrc, validatorDest sdk.Address, amount sdk.Coin) stakingtypes.MsgBeginRedelegate {
 	return stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    delegate.String(),

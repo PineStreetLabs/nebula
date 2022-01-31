@@ -3,6 +3,7 @@ package account
 import (
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/PineStreetLabs/nebula/networks"
@@ -122,6 +123,7 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 	}, nil
 }
 
+// ValidatorFromPublicKey creates an account with a validator address.
 func ValidatorFromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ValidatorHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
@@ -149,4 +151,21 @@ func fromPublicKey(hrp string, cfg *networks.Params, pk cryptotypes.PubKey, accN
 		sequence:  accSeq,
 		number:    accNum,
 	}, nil
+}
+
+// ToValidatorAddress accepts an Account and attempts to convert the address into an sdk.ValAddress type.
+func ToValidatorAddress(cfg *networks.Params, account *Account) (sdk.ValAddress, error) {
+	hrp := cfg.ValidatorHRP()
+
+	if hrp != account.address.hrp {
+		return nil, errors.New("account is not a validator")
+	}
+
+	bz := account.address.data
+
+	if err := cfg.VerifyAddressFormat(bz); err != nil {
+		return nil, err
+	}
+
+	return sdk.ValAddress(bz), nil
 }
