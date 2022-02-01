@@ -7,7 +7,7 @@ import (
 )
 
 // GovDeposit returns a MsgDeposit message.
-func GovDeposit(proposalID uint64, depositor account.Address, coins sdk.Coins) govtypes.MsgDeposit {
+func GovDeposit(proposalID uint64, depositor sdk.Address, coins ...sdk.Coin) govtypes.MsgDeposit {
 	return govtypes.MsgDeposit{
 		ProposalId: proposalID,
 		Depositor:  depositor.String(),
@@ -25,7 +25,7 @@ func GovVote(proposalID uint64, voter account.Address, vote govtypes.VoteOption)
 }
 
 // GovSubmitProposal returns a MsgSubmitProposal message.
-func GovSubmitProposal(content govtypes.Content, proposer sdk.Address, deposit sdk.Coins) govtypes.MsgSubmitProposal {
+func GovSubmitProposal(content govtypes.Content, proposer sdk.Address, deposit ...sdk.Coin) govtypes.MsgSubmitProposal {
 	proposal := govtypes.MsgSubmitProposal{
 		InitialDeposit: deposit,
 		Proposer:       proposer.String(),

@@ -46,7 +46,7 @@ func GetCosmosCfg() *Params {
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
 
 	return &Params{
-		denom:               sdk.DefaultBondDenom,
+		denom:               "atom",
 		accountHRP:          sdk.Bech32PrefixAccAddr,
 		validatorHRP:        sdk.Bech32PrefixValAddr,
 		consensusHRP:        sdk.Bech32PrefixConsAddr,

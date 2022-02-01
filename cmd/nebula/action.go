@@ -58,7 +58,7 @@ func newAccount(ctx *cli.Context) (err error) {
 		sk = account.NewPrivateKey()
 	}
 
-	acc, err := account.FromPublicKey(cfg, sk.PubKey(), 0, 0)
+	acc, err := account.NewUserAccount(cfg, sk.PubKey(), 0, 0)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	acc, err := account.FromPublicKey(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	acc, err := account.NewUserAccount(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func newBankSend(ctx *cli.Context) (err error) {
 	fmt.Println("from: " + acc.GetAddress().String())
 	fmt.Println("to: " + recipientAcc.String())
 
-	msg := messages.BankSend(acc.GetAddress(), recipientAcc, utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
+	msg := messages.BankSend(acc.GetAddress(), recipientAcc, utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 	gasLimit := ctx.Uint64("gas_limit")
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")

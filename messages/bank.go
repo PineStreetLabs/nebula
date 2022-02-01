@@ -21,16 +21,16 @@ func BankSend(from, to sdk.Address, coins ...sdk.Coin) *banktypes.MsgSend {
 }
 
 // NewInput is a helper function to create inputs.
-func NewInput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Input {
-	return &banktypes.Input{
+func NewInput(addr sdk.Address, coins ...sdk.Coin) banktypes.Input {
+	return banktypes.Input{
 		Address: addr.String(),
 		Coins:   coins,
 	}
 }
 
 // NewOutput is a helper function to create outputs.
-func NewOutput(addr sdk.Address, coins ...sdk.Coin) *banktypes.Output {
-	return &banktypes.Output{
+func NewOutput(addr sdk.Address, coins ...sdk.Coin) banktypes.Output {
+	return banktypes.Output{
 		Address: addr.String(),
 		Coins:   coins,
 	}

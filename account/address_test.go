@@ -21,6 +21,61 @@ func TestAddressFromString(t *testing.T) {
 		if !bytes.Equal(addr.data, expectedBuf) {
 			t.Fatalf("%v != %v", addr.data, expectedBuf)
 		}
+
+		// Test marshalling
+		{
+			buf, err := addr.Marshal()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			newAddr := Address{}
+			if err := (&newAddr).Unmarshal(buf); err != nil {
+				t.Fatal(err)
+			}
+
+			if !newAddr.Equals(addr) {
+				t.Fatal("expected equal addresses")
+			}
+		}
+
+		// Test JSON marshalling
+		{
+			buf, err := addr.MarshalJSON()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			newAddr := Address{}
+			if err := (&newAddr).UnmarshalJSON(buf); err != nil {
+				t.Fatal(err)
+			}
+
+			if !newAddr.Equals(addr) {
+				t.Fatal("expected equal addresses")
+			}
+		}
+
+		// Test YAML marshalling.
+		{
+			buf, err := addr.MarshalYAML()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			bufStr := (buf).(string)
+
+			newAddr := Address{}
+			if err := (&newAddr).UnmarshalYAML([]byte(bufStr)); err != nil {
+				t.Fatal(err)
+			}
+
+			t.Log(newAddr)
+			t.Log(addr)
+			if !newAddr.Equals(addr) {
+				t.Fatal("expected equal addresses")
+			}
+		}
 	}
 
 	{
