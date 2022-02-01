@@ -20,7 +20,7 @@ func lendAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgLendAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
+	msg := umee.NewMsgLendAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }
@@ -31,7 +31,7 @@ func withdrawAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgWithdrawAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
+	msg := umee.NewMsgWithdrawAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }
@@ -53,7 +53,7 @@ func repayAsset(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	msg := umee.NewMsgRepayAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg, ctx.Uint64("amount")))
+	msg := umee.NewMsgRepayAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
 	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
 }
