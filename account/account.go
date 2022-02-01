@@ -134,18 +134,19 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 	}, nil
 }
 
-// ValidatorFromPublicKey creates an account with a validator address.
+// NewValidatorAccount creates an Account for the validator context.
 func NewValidatorAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ValidatorHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
 }
 
-// FromPublicKey creates an account address using app configuration and a public key.
+// NewUserAccount creates an Account for the user/account context.
 func NewUserAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.AccountHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
 }
 
+// NewConsensusAccount creates an Account for the consensus context.
 func NewConsensusAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ConsensusHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
