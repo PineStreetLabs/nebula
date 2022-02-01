@@ -14,7 +14,7 @@ import (
 func TestStaking(t *testing.T) {
 	sk := account.NewPrivateKey()
 	valPK := sk.PubKey()
-	validator, err := account.ValidatorFromPublicKey(networks.GetCosmosCfg(), valPK, 0, 0)
+	validator, err := account.NewValidatorAccount(networks.GetCosmosCfg(), valPK, 0, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

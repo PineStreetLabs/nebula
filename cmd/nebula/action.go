@@ -58,7 +58,7 @@ func newAccount(ctx *cli.Context) (err error) {
 		sk = account.NewPrivateKey()
 	}
 
-	acc, err := account.FromPublicKey(cfg, sk.PubKey(), 0, 0)
+	acc, err := account.NewUserAccount(cfg, sk.PubKey(), 0, 0)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	acc, err := account.FromPublicKey(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	acc, err := account.NewUserAccount(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
 	if err != nil {
 		return err
 	}

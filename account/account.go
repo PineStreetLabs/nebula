@@ -75,10 +75,14 @@ func (a *Account) UnmarshalJSON(b []byte) error {
 		Key: pkBytes,
 	}
 
-	a.publicKey = pk
-	a.number = temp.Number
-	a.sequence = temp.Sequence
-	a.address = address
+	*a = Account{}
+
+	*a = Account{
+		publicKey: pk,
+		number:    temp.Number,
+		sequence:  temp.Sequence,
+		address:   address,
+	}
 
 	return nil
 }
@@ -108,12 +112,19 @@ func (a *Account) SetSequence(accSeq uint64) {
 	a.sequence = accSeq
 }
 
+var errMissingPublicKey = errors.New("missing public key")
+
 // NewAccount creates a new account.
 func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	addr, err := AddressFromString(address)
 	if err != nil {
 		return nil, err
 	}
+
+	if publickey == nil || len(publickey.Bytes()) == 0 {
+		return nil, errMissingPublicKey
+	}
+	// Make sure publickey is P256 curve..
 
 	return &Account{
 		address:   addr,
@@ -124,18 +135,27 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 }
 
 // ValidatorFromPublicKey creates an account with a validator address.
-func ValidatorFromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+func NewValidatorAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ValidatorHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
 }
 
 // FromPublicKey creates an account address using app configuration and a public key.
-func FromPublicKey(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+func NewUserAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.AccountHRP()
 	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
 }
 
+func NewConsensusAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+	hrp := cfg.ConsensusHRP()
+	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+}
+
 func fromPublicKey(hrp string, cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+	if pk == nil || len(pk.Bytes()) == 0 {
+		return nil, errMissingPublicKey
+	}
+
 	buf := pk.Address().Bytes()
 
 	if err := cfg.VerifyAddressFormat(buf); err != nil {

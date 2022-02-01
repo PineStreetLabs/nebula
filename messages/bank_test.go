@@ -14,7 +14,7 @@ func TestBankSend(t *testing.T) {
 
 	{
 		sk := account.NewPrivateKey()
-		sender, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
+		sender, err = account.NewUserAccount(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -22,7 +22,7 @@ func TestBankSend(t *testing.T) {
 
 	{
 		sk := account.NewPrivateKey()
-		recipient, err = account.FromPublicKey(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
+		recipient, err = account.NewUserAccount(networks.GetCosmosCfg(), sk.PubKey(), 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

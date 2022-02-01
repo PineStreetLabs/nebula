@@ -69,7 +69,7 @@ func getAccountAndNetworkConf(ctx *cli.Context) (*networks.Params, *account.Acco
 		return nil, nil, nil, err
 	}
 
-	acc, err := account.FromPublicKey(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	acc, err := account.NewUserAccount(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
 	if err != nil {
 		return nil, nil, nil, err
 	}

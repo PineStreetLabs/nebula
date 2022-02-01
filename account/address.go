@@ -79,12 +79,15 @@ func (a *Address) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	a2, err := sdk.GetFromBech32(s, a.hrp)
+	hrp, data, err := bech32.DecodeAndConvert(s)
 	if err != nil {
 		return err
 	}
 
-	a.data = a2
+	*a = Address{
+		data: data,
+		hrp:  hrp,
+	}
 	return nil
 }
 
