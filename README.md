@@ -14,8 +14,8 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
 | Umee |[Umee](https://github.com/umee-network/umee) | v0.3.0|
 
 ## Usage
-
-    make build
+    $ go install -v ./...
+    $ nebula help
 
 Documentation for usage is available in `/doc`:
 

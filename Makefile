@@ -23,3 +23,7 @@ lint:
 .PHONY: build
 build:
 	go build -o nebula cmd/nebula/*.go
+
+.PHONY: install
+install:
+	go install -v ./...
