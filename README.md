@@ -17,9 +17,50 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
     $ go install -v ./...
     $ nebula help
 
+Nebula is both a library for managing wallet workflows as well as a CLI.
+
 Documentation for usage is available in `/doc`:
 
 * [Getting Started](/doc/getting_started.md)
+* [Architecture](doc/arch.md)
+* [Umee Guide](doc/umee.md)
+
+## CLI
+    NAME:
+    nebula - Gateway to the Cosmos.
+
+    USAGE:
+    nebula [global options] command [command options] [arguments...]
+
+    COMMANDS:
+    help, h  Shows a list of commands or help for one command
+
+    data:
+        balance          <address>
+        account_info     <address>
+        bestblockheight  
+        blockbyhash      <hash>
+        blockbyheight    <height>
+        transaction      <txid>
+
+    umee:
+        lend_asset      Create a lend asset transaction.
+        withdraw_asset  Create a withdraw asset transaction.
+        set_collateral  Create a set collateral transaction.
+        repay_asset     Create a repay asset transaction.
+
+    wallet:
+        account       Create a new account.
+        bank_send     Create a Bank module MsgSend message.
+        new_tx        Combines a slice of messages into a new transaction.
+        sign_tx       Sign a serialized transaction.
+        broadcast_tx  Broadcast a transaction
+
+    GLOBAL OPTIONS:
+    --rpc value      the host:port endpoint of the Tendermint RPC server (e.g. 127.0.0.1:26657)
+    --grpc value     the host:port endpoint of the gRPC sever (e.g. 127.0.0.1:9090)
+    --network value  network parameters
+    --help, -h       show help
 
 
 ## Testing

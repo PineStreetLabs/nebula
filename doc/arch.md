@@ -13,3 +13,23 @@ Unfortunately, the dependency creep is very large in Cosmos-SDK based projects a
     /messages -> message definitions
     /networks -> network parameters
     /transaction -> transaction construction
+
+# Usage
+This library is tailored for wallet engineers that want to extend the functionality of their application to support Cosmos-based app chains. This includes managing node operations for staking, creating transactions, and managing accounts. 
+
+## Remote signing
+Nebula provides the scaffolding to manage remote signing workflows. This includes creating messages, combining them into a transaction, and then signing remotely before broadcasting.
+
+One can do this programmatically using `transaction` and `messages` packages. Otherwise, one can use the Nebula CLI.
+
+    # Create messagse
+    nebula bank_send <...>
+
+    # Combine messages into a transaction
+    nebula new_tx <...> 
+
+    # Either sign offline or provide a secret key to the CLI
+    nebula sign_tx
+
+    # Broadcast using a local or remote RPC connection
+    nebula --rpc=$rpc broadcast_tx --tx_hex=<...>
