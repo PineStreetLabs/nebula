@@ -1,6 +1,9 @@
 package transaction
 
 import (
+	"fmt"
+
+	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -12,10 +15,10 @@ import (
 )
 
 // Build crafts transaction for a given network.
-func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64, signerPubKeys []cryptotypes.PubKey) (client.TxBuilder, error) {
+func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64, accounts []*account.Account) (client.TxBuilder, error) {
 	builder := cfg.EncodingConfig().TxConfig.NewTxBuilder()
 	if err := builder.SetMsgs(msgs...); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("add messages : %v", err)
 	}
 
 	builder.SetGasLimit(gasLimit)
@@ -24,16 +27,16 @@ func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins
 	builder.SetTimeoutHeight(timeoutHeight)
 
 	// Assign signers.
-	signers := make([]signingtypes.SignatureV2, len(signerPubKeys))
+	signers := make([]signingtypes.SignatureV2, len(accounts))
 
-	for idx, pk := range signerPubKeys {
+	for idx, account := range accounts {
 		signers[idx] = signingtypes.SignatureV2{
-			PubKey: pk,
+			PubKey: account.GetPubKey(),
 			Data: &signingtypes.SingleSignatureData{
 				SignMode:  cfg.EncodingConfig().TxConfig.SignModeHandler().DefaultMode(),
 				Signature: nil,
 			},
-			// Sequence: 0,
+			Sequence: account.GetSequence(),
 		}
 	}
 
@@ -53,23 +56,29 @@ func NewSignerData(chainID string, accNumber, accSeq uint64) *authsigning.Signer
 	}
 }
 
+// WrapBuilder accepts an sdk.Tx and returns a TxBuilder.
+// Useful for signing.
+func WrapBuilder(cfg client.TxConfig, tx sdk.Tx) (client.TxBuilder, error) {
+	return cfg.WrapTxBuilder(tx)
+}
+
 // Sign accepts a valid transaction and signs it.
 func Sign(cfg client.TxConfig, txn client.TxBuilder, signerData authsigning.SignerData, sk cryptotypes.PrivKey) (signing.Tx, error) {
 	sig, err := tx.SignWithPrivKey(cfg.SignModeHandler().DefaultMode(), signerData, txn, sk, cfg, signerData.Sequence)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to sign : %v", err)
 	}
 
 	if err := txn.SetSignatures(sig); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("set signatures : %v", err)
 	}
 
 	return txn.GetTx(), nil
 }
 
 // FromBytes deserializes a transaction.
-func FromBytes(cfg client.TxConfig, txn []byte) (sdk.Tx, error) {
-	return cfg.TxDecoder()(txn)
+func FromBytes(cfg networks.EncodingConfig, txn []byte) (sdk.Tx, error) {
+	return cfg.TxConfig.TxDecoder()(txn)
 }
 
 // FromJSON deserializes a transaction.
@@ -83,6 +92,6 @@ func Serialize(cfg client.TxConfig, txn signing.Tx) ([]byte, error) {
 }
 
 // SerializeJSON serializes a transaction to JSON bytes.
-func SerializeJSON(cfg client.TxConfig, txn signing.Tx) ([]byte, error) {
+func SerializeJSON(cfg client.TxConfig, txn sdk.Tx) ([]byte, error) {
 	return cfg.TxJSONEncoder()(txn)
 }

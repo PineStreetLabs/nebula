@@ -2,18 +2,22 @@ package rpc
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/cosmos/cosmos-sdk/types"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
+	protoEnc "google.golang.org/grpc/encoding/proto"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	coretypes "github.com/tendermint/tendermint/rpc/core/types"
-
 	tendermintHttp "github.com/tendermint/tendermint/rpc/client/http"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // Config holds the configuration for the RPC client.
@@ -34,34 +38,69 @@ func NewConfig(grpcAddress, rpcAddress string) *Config {
 // Client maintains a connection to a node daemon.
 type Client struct {
 	cfg        *Config
-	rpcClient  *tendermintHttp.HTTP
+	rpcClient  *rpcClient
 	grpcClient *grpc.ClientConn
 }
 
+type rpcClient struct {
+	*tendermintHttp.HTTP
+}
+
+var errEndpointsUnavailable = errors.New("client connection unavailable")
+var errGrpcUnavailable = errors.New("grpc client connection unavailable")
+var errRPCUnavailable = errors.New("rpc client connection unavailable")
+
+func (c Client) getGrpcClient() (*grpc.ClientConn, error) {
+	if c.grpcClient == nil {
+		return nil, errGrpcUnavailable
+	}
+	return c.grpcClient, nil
+}
+
+func (c Client) getRPCClient() (*rpcClient, error) {
+	if c.rpcClient == nil {
+		return nil, errRPCUnavailable
+	}
+
+	return c.rpcClient, nil
+}
+
 // NewClient creates a new RPC client.
-func NewClient(cfg *Config) (*Client, error) {
+func NewClient(cfg *Config) (c *Client, err error) {
 	httpClient := &http.Client{}
 
-	rpcClient, err := tendermintHttp.NewWithClient(cfg.rpcAddress, "/", httpClient)
-	if err != nil {
-		return nil, err
+	c = &Client{}
+
+	// Assign a rpcClient if the address is available.
+	if len(cfg.rpcAddress) != 0 {
+		rpc, err := tendermintHttp.NewWithClient(cfg.rpcAddress, "/", httpClient)
+		if err != nil {
+			return nil, err
+		}
+
+		c.rpcClient = &rpcClient{rpc}
 	}
 
-	grpcClient, err := grpc.Dial(cfg.grpcAddress, grpc.WithInsecure())
-	if err != nil {
-		return nil, err
+	// Assign a grpcClient if the address is available.
+	if len(cfg.grpcAddress) != 0 {
+		// We use grpc.WithInsecure() because Cosmos-SDK does not support any transport security method.
+		c.grpcClient, err = grpc.Dial(cfg.grpcAddress, grpc.WithInsecure())
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return &Client{
-		rpcClient:  rpcClient,
-		grpcClient: grpcClient,
-		cfg:        cfg,
-	}, nil
+	return c, nil
 }
 
 // BroadcastTransaction broadcasts a transaction using a node daemon.
 func (c *Client) BroadcastTransaction(ctx context.Context, transaction []byte) (*coretypes.ResultBroadcastTx, error) {
-	resp, err := c.rpcClient.BroadcastTxSync(ctx, transaction)
+	client, err := c.getRPCClient()
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.BroadcastTxSync(ctx, transaction)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +110,17 @@ func (c *Client) BroadcastTransaction(ctx context.Context, transaction []byte) (
 
 // Balance returns the account balance for a given network.
 func (c *Client) Balance(ctx context.Context, ncfg *networks.Params, address string) (*types.Coin, error) {
-	client := bankTypes.NewQueryClient(c.grpcClient)
+	var client bankTypes.QueryClient
+
+	// If we have a gRPC client available, choose it.
+	// Otherwise, use the rpc address for gRPC with REST.
+	if grpcClient, err := c.getGrpcClient(); err == nil {
+		client = bankTypes.NewQueryClient(grpcClient)
+	} else if rpcClient, err := c.getRPCClient(); err == nil {
+		client = bankTypes.NewQueryClient(rpcClient)
+	} else {
+		return nil, errEndpointsUnavailable
+	}
 
 	resp, err := client.Balance(ctx, &bankTypes.QueryBalanceRequest{
 		Address: address,
@@ -91,7 +140,12 @@ func (c *Client) Transaction(ctx context.Context, txID []byte) (*coretypes.Resul
 
 // BestBlockHeight returns the current network block height.
 func (c *Client) BestBlockHeight(ctx context.Context) (int64, error) {
-	status, err := c.rpcClient.Status(ctx)
+	client, err := c.getRPCClient()
+	if err != nil {
+		return 0, err
+	}
+
+	status, err := client.Status(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -100,20 +154,43 @@ func (c *Client) BestBlockHeight(ctx context.Context) (int64, error) {
 
 // BlockByHeight returns a block given its height.
 func (c *Client) BlockByHeight(ctx context.Context, height int64) (*coretypes.ResultBlock, error) {
-	return c.rpcClient.Block(ctx, &height)
+	client, err := c.getRPCClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return client.Block(ctx, &height)
 }
 
 // BlockByHash returns a block given its hash.
 func (c *Client) BlockByHash(ctx context.Context, hash []byte) (*coretypes.ResultBlock, error) {
-	return c.rpcClient.BlockByHash(ctx, hash)
+	client, err := c.getRPCClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return client.BlockByHash(ctx, hash)
 }
 
 // Account returns account details.
 func (c *Client) Account(ctx context.Context, nCfg *networks.Params, address string) (*account.Account, error) {
-	client := authtypes.NewQueryClient(c.grpcClient)
-	resp, err := client.Account(ctx, &authtypes.QueryAccountRequest{
+	var client authtypes.QueryClient
+
+	// If we have a gRPC client available, choose it.
+	// Otherwise, use the rpc address for gRPC with REST.
+	if grpcClient, err := c.getGrpcClient(); err == nil {
+		client = authtypes.NewQueryClient(grpcClient)
+	} else if rpcClient, err := c.getRPCClient(); err == nil {
+		client = authtypes.NewQueryClient(rpcClient)
+	} else {
+		return nil, errEndpointsUnavailable
+	}
+
+	req := &authtypes.QueryAccountRequest{
 		Address: address,
-	})
+	}
+	resp, err := client.Account(ctx, req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -124,4 +201,32 @@ func (c *Client) Account(ctx context.Context, nCfg *networks.Params, address str
 	}
 
 	return account.NewAccount(acc.GetAddress().String(), acc.GetPubKey(), acc.GetAccountNumber(), acc.GetSequence())
+}
+
+// NewStream fulfills the grpc.Client interface.
+func (rpc *rpcClient) NewStream(context.Context, *grpc.StreamDesc, string, ...grpc.CallOption) (grpc.ClientStream, error) {
+	return nil, fmt.Errorf("stream unavailable")
+}
+
+// Invoke fulfills the grpc.Client interface using gRPC with REST.
+func (rpc *rpcClient) Invoke(ctx context.Context, method string, args, reply interface{}, opts ...grpc.CallOption) (err error) {
+	reqBuf, err := encoding.GetCodec(protoEnc.Name).Marshal(args)
+	if err != nil {
+		return err
+	}
+
+	resp, err := rpc.ABCIQueryWithOptions(ctx, method, reqBuf, rpcclient.ABCIQueryOptions{})
+	if err != nil {
+		return err
+	}
+
+	if !resp.Response.IsOK() {
+		return fmt.Errorf("acbi response : %v", resp.Response.GetCode())
+	}
+
+	if err = encoding.GetCodec(protoEnc.Name).Unmarshal(resp.Response.Value, reply); err != nil {
+		return err
+	}
+
+	return nil
 }

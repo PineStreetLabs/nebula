@@ -24,6 +24,65 @@ func GetNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 	}
 }
 
+// SignTxFlags is a slice of available flags related to signing transactions.
+var SignTxFlags = []cli.Flag{
+	cli.Uint64Flag{
+		Name:     "acc_number",
+		Usage:    "account number",
+		Required: true,
+	},
+	cli.Uint64Flag{
+		Name:     "acc_sequence",
+		Usage:    "account sequence",
+		Required: true,
+	},
+	cli.StringFlag{
+		Name:     "chain_id",
+		Usage:    "chain-id of network",
+		Required: true,
+	},
+}
+
+// NewTxFlags is a slice of available flags related to building transactions/combining messages.
+var NewTxFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:     "acc_pubkey",
+		Usage:    "account public key",
+		Required: true,
+	},
+	cli.Uint64Flag{
+		Name:     "acc_number",
+		Usage:    "account number",
+		Required: true,
+	},
+	cli.Uint64Flag{
+		Name:     "acc_sequence",
+		Usage:    "account sequence",
+		Required: true,
+	},
+	// network info
+	cli.Int64Flag{
+		Name:     "fee",
+		Usage:    "the maximum amount the user is willing to pay in fees",
+		Required: true,
+	},
+	cli.Uint64Flag{
+		Name:     "gas_limit",
+		Usage:    "option chosen by the users for how to calculate how much gas they will need to pay",
+		Required: true,
+	},
+	cli.Uint64Flag{
+		Name:     "timeout_height",
+		Usage:    "block height until which the transaction is valid",
+		Required: true,
+	},
+	cli.StringFlag{
+		Name:     "memo",
+		Usage:    "a note or comment to send with the transaction",
+		Required: true,
+	},
+}
+
 // TxFlags is a slice of available flags related to transaction construction.
 var TxFlags = []cli.Flag{
 	// account info
