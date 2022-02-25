@@ -48,18 +48,18 @@ type rpcClient struct {
 
 var errEndpointsUnavailable = errors.New("client connection unavailable")
 var errGrpcUnavailable = errors.New("grpc client connection unavailable")
-var errRpcUnavailable = errors.New("rpc client connection unavailable")
+var errRPCUnavailable = errors.New("rpc client connection unavailable")
 
-func (c *Client) getGrpcClient() (*grpc.ClientConn, error) {
+func (c Client) getGrpcClient() (*grpc.ClientConn, error) {
 	if c.grpcClient == nil {
 		return nil, errGrpcUnavailable
 	}
 	return c.grpcClient, nil
 }
 
-func (c *Client) getRpcClient() (*rpcClient, error) {
+func (c Client) getRPCClient() (*rpcClient, error) {
 	if c.rpcClient == nil {
-		return nil, errRpcUnavailable
+		return nil, errRPCUnavailable
 	}
 
 	return c.rpcClient, nil
@@ -95,7 +95,7 @@ func NewClient(cfg *Config) (c *Client, err error) {
 
 // BroadcastTransaction broadcasts a transaction using a node daemon.
 func (c *Client) BroadcastTransaction(ctx context.Context, transaction []byte) (*coretypes.ResultBroadcastTx, error) {
-	client, err := c.getRpcClient()
+	client, err := c.getRPCClient()
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (c *Client) Balance(ctx context.Context, ncfg *networks.Params, address str
 	// Otherwise, use the rpc address for gRPC with REST.
 	if grpcClient, err := c.getGrpcClient(); err == nil {
 		client = bankTypes.NewQueryClient(grpcClient)
-	} else if rpcClient, err := c.getRpcClient(); err == nil {
+	} else if rpcClient, err := c.getRPCClient(); err == nil {
 		client = bankTypes.NewQueryClient(rpcClient)
 	} else {
 		return nil, errEndpointsUnavailable
@@ -140,7 +140,7 @@ func (c *Client) Transaction(ctx context.Context, txID []byte) (*coretypes.Resul
 
 // BestBlockHeight returns the current network block height.
 func (c *Client) BestBlockHeight(ctx context.Context) (int64, error) {
-	client, err := c.getRpcClient()
+	client, err := c.getRPCClient()
 	if err != nil {
 		return 0, err
 	}
@@ -154,7 +154,7 @@ func (c *Client) BestBlockHeight(ctx context.Context) (int64, error) {
 
 // BlockByHeight returns a block given its height.
 func (c *Client) BlockByHeight(ctx context.Context, height int64) (*coretypes.ResultBlock, error) {
-	client, err := c.getRpcClient()
+	client, err := c.getRPCClient()
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (c *Client) BlockByHeight(ctx context.Context, height int64) (*coretypes.Re
 
 // BlockByHash returns a block given its hash.
 func (c *Client) BlockByHash(ctx context.Context, hash []byte) (*coretypes.ResultBlock, error) {
-	client, err := c.getRpcClient()
+	client, err := c.getRPCClient()
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (c *Client) Account(ctx context.Context, nCfg *networks.Params, address str
 	// Otherwise, use the rpc address for gRPC with REST.
 	if grpcClient, err := c.getGrpcClient(); err == nil {
 		client = authtypes.NewQueryClient(grpcClient)
-	} else if rpcClient, err := c.getRpcClient(); err == nil {
+	} else if rpcClient, err := c.getRPCClient(); err == nil {
 		client = authtypes.NewQueryClient(rpcClient)
 	} else {
 		return nil, errEndpointsUnavailable

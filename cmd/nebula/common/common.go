@@ -24,6 +24,7 @@ func GetNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 	}
 }
 
+// SignTxFlags is a slice of available flags related to signing transactions.
 var SignTxFlags = []cli.Flag{
 	cli.Uint64Flag{
 		Name:     "acc_number",
