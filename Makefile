@@ -2,11 +2,11 @@ GO_PKG_LIST := $(shell go list ./...)
 
 .PHONY: test
 test:
-	GOFLAGS=-mod=vendor go test -short ${GO_PKG_LIST}
+	go test -short ${GO_PKG_LIST}
 
 .PHONY: coverage
 coverage:
-	GOFLAGS=-mod=vendor go test -short ${GO_PKG_LIST} -coverprofile=coverage.out
+	go test -short ${GO_PKG_LIST} -coverprofile=coverage.out
 
 .PHONY: coverhtml
 coverhtml:
@@ -14,7 +14,7 @@ coverhtml:
 
 .PHONY: staticcheck
 staticcheck:
-	GOFLAGS=-mod=vendor staticcheck ${GO_PKG_LIST}
+	staticcheck ${GO_PKG_LIST}
 
 .PHONY: lint
 lint:
