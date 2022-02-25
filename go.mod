@@ -5,7 +5,7 @@ go 1.17
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 require (
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.44.6
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/tendermint/tendermint v0.34.14
 	github.com/umee-network/umee v0.3.0
