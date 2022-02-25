@@ -13,13 +13,12 @@ A [list](https://github.com/umee-network/umee/tree/main/networks/umee-1) of main
 ```sh
 $ export RPC=https://rpc.blue.main.network.umee.cc
 $ export NETWORK=umee
-$ export GRPC=grpc.blue.main.network.umee.cc:443
-$ nebula --rpc=$RPC --grpc=$GRPC --network=$NETWORK bestblockheight
+$ nebula --rpc=$RPC --network=$NETWORK bestblockheight
 116813
 ```
 Request account information:
 ```sh
-$ nebula  --grpc=$GRPC --rpc=$RPC --network=$NETWORK account_info --address=umee1vp7yuww2lenznk6tjv80gr4258mzmk56gf9xtm
+$ nebula --rpc=$RPC --network=$NETWORK account_info --address=umee1vp7yuww2lenznk6tjv80gr4258mzmk56gf9xtm
 ```
 ```json
 {"address":"umee1vp7yuww2lenznk6tjv80gr4258mzmk56gf9xtm","publickey":"","sequence":0,"number":93245}

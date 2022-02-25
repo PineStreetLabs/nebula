@@ -17,18 +17,11 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "rpc",
-			Value: "http://127.0.0.1:26657",
-			Usage: "the host:port endpoint of the Tendermint RPC server",
-		},
-		cli.StringFlag{
-			Name:  "rest",
-			Value: "http://127.0.0.1:1317",
-			Usage: "the host:port endpoint of the REST server",
+			Usage: "the host:port endpoint of the Tendermint RPC server (e.g. 127.0.0.1:26657)",
 		},
 		cli.StringFlag{
 			Name:  "grpc",
-			Value: "127.0.0.1:9090",
-			Usage: "the host:port endpoint of the gRPC sever",
+			Usage: "the host:port endpoint of the gRPC sever (e.g. 127.0.0.1:9090)",
 		},
 		cli.StringFlag{
 			Name:  "network",
@@ -60,17 +53,14 @@ func main() {
 type profile struct {
 	rpc  string
 	grpc string
-	rest string
 }
 
 func getProfile(ctx *cli.Context) (*profile, error) {
 	rpcAddress := ctx.GlobalString("rpc")
 	grpcAddress := ctx.GlobalString("grpc")
-	restAddress := ctx.GlobalString("rest")
 	return &profile{
 		rpc:  rpcAddress,
 		grpc: grpcAddress,
-		rest: restAddress,
 	}, nil
 }
 
@@ -79,7 +69,7 @@ func getClient(p *profile) (*rpc.Client, error) {
 		return nil, errors.New("server endpoints not supplied")
 	}
 
-	return rpc.NewClient(rpc.NewConfig(p.grpc, p.rpc, p.rest))
+	return rpc.NewClient(rpc.NewConfig(p.grpc, p.rpc))
 }
 
 func rpcClient(ctx *cli.Context) (*rpc.Client, error) {
