@@ -14,7 +14,6 @@ import (
 	"github.com/PineStreetLabs/nebula/utils"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/urfave/cli"
 )
@@ -87,12 +86,7 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	sk, err := account.PrivateKeyFromHex(ctx.String("private_key"))
-	if err != nil {
-		return err
-	}
-
-	acc, err := account.NewUserAccount(cfg, sk.PubKey(), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	senderAcc, err := account.AddressFromString(ctx.String("sender"))
 	if err != nil {
 		return err
 	}
@@ -102,29 +96,111 @@ func newBankSend(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	fmt.Println("from: " + acc.GetAddress().String())
-	fmt.Println("to: " + recipientAcc.String())
+	msg := messages.BankSend(senderAcc, recipientAcc, utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
-	msg := messages.BankSend(acc.GetAddress(), recipientAcc, utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
+	serializedMsg, err := messages.Marshal(cfg.EncodingConfig(), msg)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%x\n", serializedMsg)
+	return nil
+}
+
+func newTx(ctx *cli.Context) (err error) {
+	cfg, err := common.GetNetworkConfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	messageSlice := ctx.StringSlice("messages")
+
+	msgs := make([]sdk.Msg, len(messageSlice))
+
+	for idx, msgHex := range messageSlice {
+		buf, err := hex.DecodeString(msgHex)
+		if err != nil {
+			return err
+		}
+
+		msg, err := messages.Unmarshal(cfg.EncodingConfig(), buf)
+		if err != nil {
+			return fmt.Errorf("invalid message: %v", err)
+		}
+
+		msgs[idx] = msg
+	}
+
 	gasLimit := ctx.Uint64("gas_limit")
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")
 	memo := ctx.String("memo")
 
-	txnBuilder, err := transaction.Build(cfg, []sdk.Msg{msg}, gasLimit, fee, memo, timeoutHeight, []cryptotypes.PubKey{acc.GetPubKey()})
+	pkHex, err := hex.DecodeString(ctx.String("acc_pubkey"))
 	if err != nil {
 		return err
 	}
 
-	signerData := transaction.NewSignerData("umee-local-testnet", ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
-	txn, err := transaction.Sign(cfg.EncodingConfig().TxConfig, txnBuilder, *signerData, sk)
+	pk, err := account.Secp256k1PublicKey(pkHex)
+	if err != nil {
+		return err
+	}
+
+	acc, err := account.NewUserAccount(cfg, pk, ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	if err != nil {
+		return err
+	}
+
+	txnBuilder, err := transaction.Build(cfg, msgs, gasLimit, fee, memo, timeoutHeight, []*account.Account{acc})
+	if err != nil {
+		return fmt.Errorf("could not build transaction : %v", err)
+	}
+
+	serializedTxn, err := transaction.Serialize(cfg.EncodingConfig().TxConfig, txnBuilder.GetTx())
+	if err != nil {
+		return fmt.Errorf("could not serialize transaction : %v", err)
+	}
+
+	fmt.Printf("%x\n", serializedTxn)
+	return nil
+}
+
+func signTx(ctx *cli.Context) (err error) {
+	cfg, err := common.GetNetworkConfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	txHex, err := hex.DecodeString(ctx.String("tx"))
+	if err != nil {
+		return err
+	}
+
+	tx, err := transaction.FromBytes(cfg.EncodingConfig(), txHex)
+	if err != nil {
+		return fmt.Errorf("unable to deserialize : %v", err)
+	}
+
+	builder, err := transaction.WrapBuilder(cfg.EncodingConfig().TxConfig, tx)
+	if err != nil {
+		return fmt.Errorf("could not deserialize transaction : %v", err)
+	}
+
+	signerData := transaction.NewSignerData(ctx.String("chain_id"), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+
+	sk, err := account.PrivateKeyFromHex(ctx.String("private_key"))
+	if err != nil {
+		return err
+	}
+
+	txn, err := transaction.Sign(cfg.EncodingConfig().TxConfig, builder, *signerData, sk)
 	if err != nil {
 		return err
 	}
 
 	serializedTxn, err := transaction.Serialize(cfg.EncodingConfig().TxConfig, txn)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to serialize : %v", err)
 	}
 
 	fmt.Printf("%x\n", serializedTxn)

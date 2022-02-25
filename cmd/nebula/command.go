@@ -1,7 +1,9 @@
 package main
 
-import "github.com/urfave/cli"
-import "github.com/PineStreetLabs/nebula/cmd/nebula/common"
+import (
+	"github.com/PineStreetLabs/nebula/cmd/nebula/common"
+	"github.com/urfave/cli"
+)
 
 var newAccountCommand = cli.Command{
 	Name:     "account",
@@ -28,11 +30,16 @@ var newAccountCommand = cli.Command{
 var newBankSendCommand = cli.Command{
 	Name:     "bank_send",
 	Category: "wallet",
-	Usage:    "Create a new bank send transaction.",
+	Usage:    "Create a Bank module MsgSend message.",
 	Description: `
-	Creates a single bank send transaction and returns the serialized transaction in bytes.
+	Create a Bank module MsgSend message.
 	`,
-	Flags: append([]cli.Flag{
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "sender",
+			Usage:    "senders's address",
+			Required: true,
+		},
 		cli.StringFlag{
 			Name:     "recipient",
 			Usage:    "recipient's address",
@@ -43,8 +50,42 @@ var newBankSendCommand = cli.Command{
 			Usage:    "unsigned integer amount to send to the recipient",
 			Required: true,
 		},
-	}, common.TxFlags...),
+	},
 	Action: newBankSend,
+}
+
+var signTxCommand = cli.Command{
+	Name:        "sign_tx",
+	Category:    "wallet",
+	Usage:       "Sign a serialized transaction.",
+	Description: "Sign a serialized transaction.",
+	Flags: append([]cli.Flag{
+		cli.StringFlag{
+			Name:     "tx",
+			Usage:    "hex-encoded transaction",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:     "private_key",
+			Usage:    "private key to sign transaction",
+			Required: true,
+		},
+	}, common.SignTxFlags...),
+	Action: signTx,
+}
+
+var newTxCommand = cli.Command{
+	Name:        "new_tx",
+	Category:    "wallet",
+	Usage:       "Combines a slice of messages into a new transaction.",
+	Description: "Combines a slice of messages into a new transaction.",
+	Flags: append([]cli.Flag{
+		cli.StringSliceFlag{
+			Name:     "messages",
+			Required: true,
+		},
+	}, common.NewTxFlags...),
+	Action: newTx,
 }
 
 var broadcastTxCommand = cli.Command{

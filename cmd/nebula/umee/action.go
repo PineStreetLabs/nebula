@@ -22,7 +22,7 @@ func lendAsset(ctx *cli.Context) (err error) {
 
 	msg := umee.NewMsgLendAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
-	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
+	return buildAndSignTx(ctx, msg, acc, sk)
 }
 
 func withdrawAsset(ctx *cli.Context) (err error) {
@@ -33,7 +33,7 @@ func withdrawAsset(ctx *cli.Context) (err error) {
 
 	msg := umee.NewMsgWithdrawAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
-	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
+	return buildAndSignTx(ctx, msg, acc, sk)
 }
 
 func setCollateral(ctx *cli.Context) (err error) {
@@ -44,7 +44,7 @@ func setCollateral(ctx *cli.Context) (err error) {
 
 	msg := umee.NewMsgSetCollateral(acc.GetAddress(), cfg.Denom(), ctx.Bool("enabled"))
 
-	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
+	return buildAndSignTx(ctx, msg, acc, sk)
 }
 
 func repayAsset(ctx *cli.Context) (err error) {
@@ -55,7 +55,7 @@ func repayAsset(ctx *cli.Context) (err error) {
 
 	msg := umee.NewMsgRepayAsset(acc.GetAddress(), utils.NewCoinFromUint64(cfg.Denom(), ctx.Uint64("amount")))
 
-	return buildAndSignTx(ctx, msg, acc.GetPubKey(), sk)
+	return buildAndSignTx(ctx, msg, acc, sk)
 }
 
 func getAccountAndNetworkConf(ctx *cli.Context) (*networks.Params, *account.Account, cryptotypes.PrivKey, error) {
@@ -77,7 +77,7 @@ func getAccountAndNetworkConf(ctx *cli.Context) (*networks.Params, *account.Acco
 	return cfg, acc, sk, nil
 }
 
-func buildAndSignTx(ctx *cli.Context, msg sdk.Msg, signerPubKey cryptotypes.PubKey, sk cryptotypes.PrivKey) (err error) {
+func buildAndSignTx(ctx *cli.Context, msg sdk.Msg, acc *account.Account, sk cryptotypes.PrivKey) (err error) {
 	cfg, err := common.GetNetworkConfig(ctx)
 	if err != nil {
 		return err
@@ -88,12 +88,12 @@ func buildAndSignTx(ctx *cli.Context, msg sdk.Msg, signerPubKey cryptotypes.PubK
 	timeoutHeight := ctx.Uint64("timeout_height")
 	memo := ctx.String("memo")
 
-	txnBuilder, err := transaction.Build(cfg, []sdk.Msg{msg}, gasLimit, fee, memo, timeoutHeight, []cryptotypes.PubKey{signerPubKey})
+	txnBuilder, err := transaction.Build(cfg, []sdk.Msg{msg}, gasLimit, fee, memo, timeoutHeight, []*account.Account{acc})
 	if err != nil {
 		return err
 	}
 
-	signerData := transaction.NewSignerData("umee-local-testnet", ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	signerData := transaction.NewSignerData(ctx.String("chain_id"), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
 	txn, err := transaction.Sign(cfg.EncodingConfig().TxConfig, txnBuilder, *signerData, sk)
 	if err != nil {
 		return err

@@ -2,6 +2,7 @@ package account
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/hex"
 	"testing"
 
@@ -9,7 +10,12 @@ import (
 )
 
 func TestFromPublicKey(t *testing.T) {
-	pk, err := ParseSecp256k1PublicKey("AqKNXMp4eXSWIpsa/QWpNnyOCczNhKCOE/XohdspkpfI")
+	key, err := base64.StdEncoding.DecodeString("AqKNXMp4eXSWIpsa/QWpNnyOCczNhKCOE/XohdspkpfI")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Secp256k1PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +88,12 @@ func TestLengthLimits(t *testing.T) {
 }
 
 func TestUserAccount(t *testing.T) {
-	pk, err := ParseSecp256k1PublicKey("Ajo3B71w4LnB6jo/r4g7MbYL6cNwd766lYyhXY9ae99M")
+	key, err := base64.StdEncoding.DecodeString("Ajo3B71w4LnB6jo/r4g7MbYL6cNwd766lYyhXY9ae99M")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Secp256k1PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +122,12 @@ func TestUserAccount(t *testing.T) {
 }
 
 func TestValAccount(t *testing.T) {
-	pk, err := ParseSecp256k1PublicKey("Ajo3B71w4LnB6jo/r4g7MbYL6cNwd766lYyhXY9ae99M")
+	key, err := base64.StdEncoding.DecodeString("Ajo3B71w4LnB6jo/r4g7MbYL6cNwd766lYyhXY9ae99M")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Secp256k1PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,7 +148,12 @@ func TestValAccount(t *testing.T) {
 }
 
 func TestConsAccount(t *testing.T) {
-	pk, err := ParseEd25519PublicKey("fxCmUUD3ijcE+mBPs4JAjvl5+sp3B03tTGSBXuEUfpU=")
+	key, err := base64.StdEncoding.DecodeString("fxCmUUD3ijcE+mBPs4JAjvl5+sp3B03tTGSBXuEUfpU=")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Ed25519PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +170,12 @@ func TestConsAccount(t *testing.T) {
 }
 
 func TestNewAccount(t *testing.T) {
-	pk, err := ParseSecp256k1PublicKey("AwAOXeWgNf1FjMaayrSnrOOKz+Fivr6DiI/i0x0sZCHw")
+	key, err := base64.StdEncoding.DecodeString("AwAOXeWgNf1FjMaayrSnrOOKz+Fivr6DiI/i0x0sZCHw")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Secp256k1PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,14 +184,15 @@ func TestNewAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := NewAccount("cosmos14pt0q5cwf38zt08uu0n6yrstf3rndzr5057jys", nil, 10, 1); err == nil || err != errMissingPublicKey {
-		t.Fatalf("expected %v", errMissingPublicKey)
-	}
-
 }
 
 func TestMarshal(t *testing.T) {
-	pk, err := ParseSecp256k1PublicKey("AwAOXeWgNf1FjMaayrSnrOOKz+Fivr6DiI/i0x0sZCHw")
+	key, err := base64.StdEncoding.DecodeString("AwAOXeWgNf1FjMaayrSnrOOKz+Fivr6DiI/i0x0sZCHw")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := Secp256k1PublicKey(key)
 	if err != nil {
 		t.Fatal(err)
 	}

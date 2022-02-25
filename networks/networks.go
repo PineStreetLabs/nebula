@@ -1,6 +1,7 @@
 package networks
 
 import (
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -18,6 +19,7 @@ func GetUmeeCfg() *Params {
 	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
 	leverageTypes.RegisterInterfaces(encCfg.InterfaceRegistry)
+	cryptocodec.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	return &Params{
 		denom:               umee.BondDenom,
@@ -44,6 +46,7 @@ func GetCosmosCfg() *Params {
 	encCfg := MakeEncodingConfig()
 	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
+	cryptocodec.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	return &Params{
 		denom:               "atom",

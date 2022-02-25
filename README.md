@@ -8,10 +8,10 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
 
 
 ## Network Support
-| Network      | Repository | Version |
-| ----------- | ----------- | -----------|
-| Cosmos Hub (ATOM) | [Cosmos](https://github.com/cosmos/gaia)| - |
-| Umee |[Umee](https://github.com/umee-network/umee) | v0.3.0|
+| Network      | Repository | Version | Documentation |
+|-----------|-----------|-----------|-----------|
+| Cosmos Hub (ATOM) | [Cosmos](https://github.com/cosmos/gaia)| - | - |
+| Umee |[Umee](https://github.com/umee-network/umee) | v0.3.0| [Umee](/doc/umee.md)
 
 ## Usage
     $ go install -v ./...

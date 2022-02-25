@@ -1,7 +1,6 @@
 package account
 
 import (
-	"encoding/base64"
 	"errors"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -10,36 +9,26 @@ import (
 
 var errInvalidPkLen = errors.New("invalid public key length")
 
-// ParseSecp256k1PublicKey accepts a base64-encoded string and returns a secp256k1 public key.
-func ParseSecp256k1PublicKey(pk string) (*secp256k1.PubKey, error) {
-	key, err := base64.StdEncoding.DecodeString(pk)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(key) != secp256k1.PubKeySize {
+// Secp256k1PublicKey accepts a byte slice and returns a secp256k1 public key.
+func Secp256k1PublicKey(pk []byte) (*secp256k1.PubKey, error) {
+	if len(pk) != secp256k1.PubKeySize {
 		return nil, errInvalidPkLen
 	}
 
 	// TODO verify
 	return &secp256k1.PubKey{
-		Key: key,
+		Key: pk,
 	}, nil
 }
 
-// ParseEd25519PublicKey accepts a base64-encoded string and returns a ed25519 public key.
-func ParseEd25519PublicKey(pk string) (*ed25519.PubKey, error) {
-	key, err := base64.StdEncoding.DecodeString(pk)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(key) != ed25519.PubKeySize {
+// Ed25519PublicKey accepts a byte slice and returns a ed25519 public key.
+func Ed25519PublicKey(pk []byte) (*ed25519.PubKey, error) {
+	if len(pk) != ed25519.PubKeySize {
 		return nil, errInvalidPkLen
 	}
 
 	// TODO verify
 	return &ed25519.PubKey{
-		Key: key,
+		Key: pk,
 	}, nil
 }

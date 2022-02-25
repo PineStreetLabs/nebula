@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -17,12 +18,17 @@ func main() {
 		cli.StringFlag{
 			Name:  "rpc",
 			Value: "http://127.0.0.1:26657",
-			Usage: "the host:port of the JSON-RPC server",
+			Usage: "the host:port endpoint of the Tendermint RPC server",
+		},
+		cli.StringFlag{
+			Name:  "rest",
+			Value: "http://127.0.0.1:1317",
+			Usage: "the host:port endpoint of the REST server",
 		},
 		cli.StringFlag{
 			Name:  "grpc",
 			Value: "127.0.0.1:9090",
-			Usage: "the host:port of the gRPC sever",
+			Usage: "the host:port endpoint of the gRPC sever",
 		},
 		cli.StringFlag{
 			Name:  "network",
@@ -30,15 +36,17 @@ func main() {
 		},
 	}
 	app.Commands = []cli.Command{
-		broadcastTxCommand,
 		newAccountCommand,
 		newBankSendCommand,
+		newTxCommand,
+		signTxCommand,
+		broadcastTxCommand,
 		balanceCommand,
 		accountCommand,
 		bestBlockHeightCommand,
 		blockByHashCommand,
 		blockByHeightCommand,
-    transactionCommand,
+		transactionCommand,
 		umee.LendAssetCommand,
 		umee.WithdrawAssetCommand,
 		umee.SetCollateralCommand,
@@ -52,19 +60,26 @@ func main() {
 type profile struct {
 	rpc  string
 	grpc string
+	rest string
 }
 
 func getProfile(ctx *cli.Context) (*profile, error) {
 	rpcAddress := ctx.GlobalString("rpc")
 	grpcAddress := ctx.GlobalString("grpc")
+	restAddress := ctx.GlobalString("rest")
 	return &profile{
 		rpc:  rpcAddress,
 		grpc: grpcAddress,
+		rest: restAddress,
 	}, nil
 }
 
-func getClient(rpcAddress, grpcAddress string) (*rpc.Client, error) {
-	return rpc.NewClient(rpc.NewConfig(grpcAddress, rpcAddress))
+func getClient(p *profile) (*rpc.Client, error) {
+	if p == nil {
+		return nil, errors.New("server endpoints not supplied")
+	}
+
+	return rpc.NewClient(rpc.NewConfig(p.grpc, p.rpc, p.rest))
 }
 
 func rpcClient(ctx *cli.Context) (*rpc.Client, error) {
@@ -73,5 +88,5 @@ func rpcClient(ctx *cli.Context) (*rpc.Client, error) {
 		return nil, err
 	}
 
-	return getClient(profile.rpc, profile.grpc)
+	return getClient(profile)
 }

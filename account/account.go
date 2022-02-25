@@ -121,11 +121,6 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 		return nil, err
 	}
 
-	if publickey == nil || len(publickey.Bytes()) == 0 {
-		return nil, errMissingPublicKey
-	}
-	// Make sure publickey is P256 curve..
-
 	return &Account{
 		address:   addr,
 		publicKey: publickey,

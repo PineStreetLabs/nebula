@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"encoding/base64"
 	"math/big"
 	"testing"
 
@@ -12,7 +13,12 @@ import (
 )
 
 func TestStaking(t *testing.T) {
-	pk, err := account.ParseSecp256k1PublicKey("AxbeWcFto+wFfoQOot6oPJpeqf5j3sbl6hiMhYhb+ON7")
+	key, err := base64.StdEncoding.DecodeString("AxbeWcFto+wFfoQOot6oPJpeqf5j3sbl6hiMhYhb+ON7")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pk, err := account.Secp256k1PublicKey(key)
 	if err != nil {
 		panic(err)
 	}
