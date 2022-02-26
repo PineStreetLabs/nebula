@@ -62,15 +62,7 @@ func newAccount(ctx *cli.Context) (err error) {
 		return err
 	}
 
-	type Result struct {
-		Address    string `json:"address"`
-		PrivateKey string `json:"private_key"`
-	}
-
-	resp, err := json.Marshal(Result{
-		Address:    acc.GetAddress().String(),
-		PrivateKey: hex.EncodeToString(sk.Bytes()),
-	})
+	resp, err := json.Marshal(acc)
 	if err != nil {
 		return err
 	}
