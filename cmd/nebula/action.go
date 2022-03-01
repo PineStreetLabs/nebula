@@ -124,26 +124,11 @@ func newTx(ctx *cli.Context) (err error) {
 	}
 
 	gasLimit := ctx.Uint64("gas_limit")
-	fee := sdk.NewCoins(sdk.NewInt64Coin("uumee", ctx.Int64("fee")))
+	fee := sdk.NewCoins(sdk.NewInt64Coin(cfg.Denom(), ctx.Int64("fee")))
 	timeoutHeight := ctx.Uint64("timeout_height")
 	memo := ctx.String("memo")
 
-	pkHex, err := hex.DecodeString(ctx.String("acc_pubkey"))
-	if err != nil {
-		return err
-	}
-
-	pk, err := account.Secp256k1PublicKey(pkHex)
-	if err != nil {
-		return err
-	}
-
-	acc, err := account.NewUserAccount(cfg, pk, ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
-	if err != nil {
-		return err
-	}
-
-	txnBuilder, err := transaction.Build(cfg, msgs, gasLimit, fee, memo, timeoutHeight, []*account.Account{acc})
+	txnBuilder, err := transaction.Build(cfg, msgs, gasLimit, fee, memo, timeoutHeight)
 	if err != nil {
 		return fmt.Errorf("could not build transaction : %v", err)
 	}

@@ -88,12 +88,12 @@ func buildAndSignTx(ctx *cli.Context, msg sdk.Msg, acc *account.Account, sk cryp
 	timeoutHeight := ctx.Uint64("timeout_height")
 	memo := ctx.String("memo")
 
-	txnBuilder, err := transaction.Build(cfg, []sdk.Msg{msg}, gasLimit, fee, memo, timeoutHeight, []*account.Account{acc})
+	txnBuilder, err := transaction.Build(cfg, []sdk.Msg{msg}, gasLimit, fee, memo, timeoutHeight)
 	if err != nil {
 		return err
 	}
 
-	signerData := transaction.NewSignerData(ctx.String("chain_id"), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))
+	signerData := transaction.NewSignerData(ctx.String("chain_id"), acc.GetAccountNumber(), acc.GetSequence())
 	txn, err := transaction.Sign(cfg.EncodingConfig().TxConfig, txnBuilder, *signerData, sk)
 	if err != nil {
 		return err

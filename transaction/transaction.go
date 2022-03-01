@@ -1,13 +1,16 @@
 package transaction
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -15,7 +18,8 @@ import (
 )
 
 // Build crafts transaction for a given network.
-func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64, accounts []*account.Account) (client.TxBuilder, error) {
+func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins, memo string, timeoutHeight uint64) (client.TxBuilder, error) {
+	// Build the transaction.
 	builder := cfg.EncodingConfig().TxConfig.NewTxBuilder()
 	if err := builder.SetMsgs(msgs...); err != nil {
 		return nil, fmt.Errorf("add messages : %v", err)
@@ -25,24 +29,6 @@ func Build(cfg *networks.Params, msgs []sdk.Msg, gasLimit uint64, fees sdk.Coins
 	builder.SetFeeAmount(fees)
 	builder.SetMemo(memo)
 	builder.SetTimeoutHeight(timeoutHeight)
-
-	// Assign signers.
-	signers := make([]signingtypes.SignatureV2, len(accounts))
-
-	for idx, account := range accounts {
-		signers[idx] = signingtypes.SignatureV2{
-			PubKey: account.GetPubKey(),
-			Data: &signingtypes.SingleSignatureData{
-				SignMode:  cfg.EncodingConfig().TxConfig.SignModeHandler().DefaultMode(),
-				Signature: nil,
-			},
-			Sequence: account.GetSequence(),
-		}
-	}
-
-	if err := builder.SetSignatures(signers...); err != nil {
-		return nil, err
-	}
 
 	return builder, nil
 }
@@ -60,6 +46,62 @@ func NewSignerData(chainID string, accNumber, accSeq uint64) *authsigning.Signer
 // Useful for signing.
 func WrapBuilder(cfg client.TxConfig, tx sdk.Tx) (client.TxBuilder, error) {
 	return cfg.WrapTxBuilder(tx)
+}
+
+// CombineSignatures combines signatures and finalizes a transaction for a multisig account.
+func CombineSignatures(cfg client.TxConfig, txn client.TxBuilder, signatures []signingtypes.SignatureData, account *account.Account) (signing.Tx, error) {
+	var multisigPub *kmultisig.LegacyAminoPubKey
+	if pubkey, ok := account.GetPubKey().(*kmultisig.LegacyAminoPubKey); ok {
+		multisigPub = pubkey
+	} else {
+		return nil, errors.New("expected multisig account")
+	}
+
+	multisigInfo := multisig.NewMultisig(len(multisigPub.PubKeys))
+
+	for idx, sig := range signatures {
+		multisig.AddSignature(multisigInfo, sig, idx)
+	}
+
+	sig := signingtypes.SignatureV2{
+		PubKey:   multisigPub,
+		Data:     multisigInfo,
+		Sequence: account.GetSequence(),
+	}
+
+	if err := txn.SetSignatures(sig); err != nil {
+		return nil, fmt.Errorf("set signatures : %v", err)
+	}
+
+	if err := txn.GetTx().ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	return txn.GetTx(), nil
+}
+
+// PartialSign creates a signature for multisig accounts that have multiple signers.
+func PartialSign(cfg client.TxConfig, txn client.TxBuilder, signerData authsigning.SignerData, sk cryptotypes.PrivKey) (signingtypes.SignatureData, error) {
+	signMode := signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON
+
+	signBytes, err := cfg.SignModeHandler().GetSignBytes(signMode, signerData, txn.GetTx())
+	if err != nil {
+		return nil, err
+	}
+
+	sig, err := sk.Sign(signBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	signature := &signingtypes.SingleSignatureData{SignMode: signMode, Signature: sig}
+
+	// Verify
+	if err := signing.VerifySignature(sk.PubKey(), signerData, signature, cfg.SignModeHandler(), txn.GetTx()); err != nil {
+		return nil, err
+	}
+
+	return signature, nil
 }
 
 // Sign accepts a valid transaction and signs it.

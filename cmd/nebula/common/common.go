@@ -45,21 +45,6 @@ var SignTxFlags = []cli.Flag{
 
 // NewTxFlags is a slice of available flags related to building transactions/combining messages.
 var NewTxFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:     "acc_pubkey",
-		Usage:    "account public key",
-		Required: true,
-	},
-	cli.Uint64Flag{
-		Name:     "acc_number",
-		Usage:    "account number",
-		Required: true,
-	},
-	cli.Uint64Flag{
-		Name:     "acc_sequence",
-		Usage:    "account sequence",
-		Required: true,
-	},
 	// network info
 	cli.Int64Flag{
 		Name:     "fee",
