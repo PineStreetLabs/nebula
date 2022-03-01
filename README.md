@@ -23,6 +23,7 @@ Documentation for usage is available in `/doc`:
 
 * [Getting Started](/doc/getting_started.md)
 * [Architecture](doc/arch.md)
+* [MultiSig Usage](doc/multisig.md)
 * [Umee Guide](doc/umee.md)
 
 ## CLI

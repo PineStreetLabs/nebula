@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	ledger_cosmos_go "github.com/cosmos/ledger-cosmos-go"
 )
@@ -36,7 +37,7 @@ func Account(cfg *networks.Params, accountBIP44 uint32) (*account.Account, error
 }
 
 // Sign signs a transaction from a Ledger device. Returns a signature.
-func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signerData authsigning.SignerData) ([]byte, error) {
+func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signerData authsigning.SignerData) (*signingtypes.SignatureV2, error) {
 	device, err := ledger_cosmos_go.FindLedgerCosmosUserApp()
 	if err != nil {
 		return nil, err
@@ -69,6 +70,24 @@ func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signe
 		return nil, err
 	}
 
+	pkBuf, err := device.GetPublicKeySECP256K1(path.DerivationPath())
+	if err != nil {
+		return nil, err
+	}
+
+	pk, err := account.Secp256k1PublicKey(pkBuf)
+	if err != nil {
+		return nil, err
+	}
+
 	// Signing mode is SignMode_SIGN_MODE_LEGACY_AMINO_JSON
-	return device.SignSECP256K1(path.DerivationPath(), buf)
+	res, err := device.SignSECP256K1(path.DerivationPath(), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return &signingtypes.SignatureV2{PubKey: pk, Data: &signingtypes.SingleSignatureData{
+		SignMode:  signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
+		Signature: res,
+	}}, nil
 }
