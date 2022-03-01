@@ -43,19 +43,19 @@ func TestBasicTransactionFlow(t *testing.T) {
 	msg := messages.BankSend(sender.GetAddress(), recipient.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("atom", 10))...)
 	fee := sdk.NewCoins(sdk.NewInt64Coin("atom", 1))
 
-	txn, err := Build(networks.GetUmeeCfg(), []sdk.Msg{msg}, 100, fee, "", 1, nil)
+	txn, err := Build(networks.GetCosmosCfg(), []sdk.Msg{msg}, 100, fee, "", 1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	signerData := NewSignerData("", 0, 0)
 
-	signedTxn, err := Sign(networks.GetUmeeCfg().EncodingConfig().TxConfig, txn, *signerData, sk)
+	signedTxn, err := Sign(networks.GetCosmosCfg().EncodingConfig().TxConfig, txn, *signerData, sk)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	res, err := Serialize(networks.GetUmeeCfg().EncodingConfig().TxConfig, signedTxn)
+	res, err := Serialize(networks.GetCosmosCfg().EncodingConfig().TxConfig, signedTxn)
 	if err != nil {
 		t.Fatal(err)
 	}
