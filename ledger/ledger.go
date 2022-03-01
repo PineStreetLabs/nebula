@@ -47,8 +47,8 @@ func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signe
 		return nil, err
 	}
 
-	var txJson map[string]map[string]json.RawMessage
-	json.Unmarshal(txBuf, &txJson)
+	var txJSON map[string]map[string]json.RawMessage
+	json.Unmarshal(txBuf, &txJSON)
 
 	path := *hd.NewFundraiserParams(accountBIP44, sdk.CoinType, 0)
 
@@ -60,7 +60,7 @@ func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signe
 		"memo": "%s",
 		"msgs": %s,
 		"sequence": %d
-	}`, signerData.AccountNumber, signerData.ChainID, txJson["auth_info"]["fee"], txn.GetTx().GetMemo(), txJson["body"]["messages"], signerData.Sequence)
+	}`, signerData.AccountNumber, signerData.ChainID, txJSON["auth_info"]["fee"], txn.GetTx().GetMemo(), txJSON["body"]["messages"], signerData.Sequence)
 
 	var val map[string]interface{}
 	json.Unmarshal([]byte(payload), &val)
