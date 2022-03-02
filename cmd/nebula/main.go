@@ -34,6 +34,8 @@ func main() {
 		newBankSendCommand,
 		newTxCommand,
 		signTxCommand,
+		partialSignTxCommand,
+		combineTxCommand,
 		broadcastTxCommand,
 		balanceCommand,
 		accountCommand,

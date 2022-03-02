@@ -142,11 +142,6 @@ var combineTxCommand = cli.Command{
 			Usage:    "json signatures",
 			Required: true,
 		},
-		cli.StringFlag{
-			Name:     "tx",
-			Usage:    "hex-encoded transaction",
-			Required: true,
-		},
 		cli.Uint64Flag{
 			Name:     "acc_number",
 			Usage:    "account number",
@@ -163,7 +158,7 @@ var combineTxCommand = cli.Command{
 			Required: true,
 		},
 	},
-	Action: partialSignTx,
+	Action: combineTx,
 }
 
 var newTxCommand = cli.Command{

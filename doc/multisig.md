@@ -37,3 +37,14 @@ nebula --network=cosmos multisig_account --threshold=1 --publickey=$PK0 --public
   ]
 }
 ```
+
+To sign a transaction with a MultiSig signer, the following steps must be taken:
+
+(1) parially sign the transaction
+```sh
+nebula --network=cosmos partial_sign_tx --tx=$TX ...
+```
+(2) combine signatures 
+```sh
+nebula --network=cosmos combine_signatures --tx=$TX --multisig_account=$MULTISIG_JSON --signature=$SIG0 --signature=$SIG1
+```

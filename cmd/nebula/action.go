@@ -273,16 +273,15 @@ func combineTx(ctx *cli.Context) (err error) {
 		return fmt.Errorf("could not deserialize transaction : %v", err)
 	}
 
-	// for idx, sig := range sigs {
-	sigs, err := cfg.EncodingConfig().TxConfig.UnmarshalSignatureJSON([]byte(ctx.String("signature")))
-	if err != nil {
-		return err
-	}
+	sigs := ctx.StringSlice("signature")
+	signatures := make([]signingtypes.SignatureV2, 0)
 
-	signatures := make([]signingtypes.SignatureData, len(sigs))
-
-	for idx, sig := range sigs {
-		signatures[idx] = sig.Data
+	for _, sig := range sigs {
+		s, err := cfg.EncodingConfig().TxConfig.UnmarshalSignatureJSON([]byte(sig))
+		if err != nil {
+			return err
+		}
+		signatures = append(signatures, s...)
 	}
 
 	acc, err := account.MultiSigAccountFromKey(cfg, []byte(ctx.String("multisig_account")), ctx.Uint64("acc_number"), ctx.Uint64("acc_sequence"))

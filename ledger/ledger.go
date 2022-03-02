@@ -1,15 +1,14 @@
 package ledger
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
-	"github.com/PineStreetLabs/nebula/transaction"
+	"github.com/btcsuite/btcd/btcec"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	tendermint_btcec "github.com/tendermint/btcd/btcec"
+
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	ledger_cosmos_go "github.com/cosmos/ledger-cosmos-go"
@@ -43,32 +42,7 @@ func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signe
 		return nil, err
 	}
 
-	txBuf, err := transaction.SerializeJSON(cfg.EncodingConfig().TxConfig, txn.GetTx())
-	if err != nil {
-		return nil, err
-	}
-
-	var txJSON map[string]map[string]json.RawMessage
-	json.Unmarshal(txBuf, &txJSON)
-
 	path := *hd.NewFundraiserParams(accountBIP44, sdk.CoinType, 0)
-
-	// Ledger's Cosmos App requires a specific payload described here: https://github.com/cosmos/ledger-cosmos/blob/main/docs/TXSPEC.md
-	payload := fmt.Sprintf(`{
-		"account_number": %d,
-		"chain_id": "%s",
-		"fee": %s,
-		"memo": "%s",
-		"msgs": %s,
-		"sequence": %d
-	}`, signerData.AccountNumber, signerData.ChainID, txJSON["auth_info"]["fee"], txn.GetTx().GetMemo(), txJSON["body"]["messages"], signerData.Sequence)
-
-	var val map[string]interface{}
-	json.Unmarshal([]byte(payload), &val)
-	buf, err := json.Marshal(val)
-	if err != nil {
-		return nil, err
-	}
 
 	pkBuf, err := device.GetPublicKeySECP256K1(path.DerivationPath())
 	if err != nil {
@@ -80,14 +54,31 @@ func Sign(cfg *networks.Params, accountBIP44 uint32, txn client.TxBuilder, signe
 		return nil, err
 	}
 
-	// Signing mode is SignMode_SIGN_MODE_LEGACY_AMINO_JSON
-	res, err := device.SignSECP256K1(path.DerivationPath(), buf)
+	signBytes, err := cfg.EncodingConfig().TxConfig.SignModeHandler().GetSignBytes(signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON, signerData, txn.GetTx())
 	if err != nil {
 		return nil, err
 	}
 
-	return &signingtypes.SignatureV2{PubKey: pk, Data: &signingtypes.SingleSignatureData{
+	signatureDER, err := device.SignSECP256K1(path.DerivationPath(), signBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	sigDER, err := btcec.ParseDERSignature(signatureDER, btcec.S256())
+	if err != nil {
+		return nil, err
+	}
+
+	sigBER := tendermint_btcec.Signature{R: sigDER.R, S: sigDER.S}
+
+	sigData := &signingtypes.SingleSignatureData{
 		SignMode:  signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-		Signature: res,
-	}}, nil
+		Signature: sigBER.Serialize(),
+	}
+
+	if err := authsigning.VerifySignature(pk, signerData, sigData, cfg.EncodingConfig().TxConfig.SignModeHandler(), txn.GetTx()); err != nil {
+		return nil, err
+	}
+
+	return &signingtypes.SignatureV2{PubKey: pk, Data: sigData}, nil
 }
