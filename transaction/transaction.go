@@ -49,7 +49,7 @@ func WrapBuilder(cfg client.TxConfig, tx sdk.Tx) (client.TxBuilder, error) {
 }
 
 // CombineSignatures combines signatures and finalizes a transaction for a multisig account.
-func CombineSignatures(cfg client.TxConfig, txn client.TxBuilder, signatures []signingtypes.SignatureData, account *account.Account) (signing.Tx, error) {
+func CombineSignatures(cfg client.TxConfig, txn client.TxBuilder, signatures []signingtypes.SignatureV2, account *account.Account) (signing.Tx, error) {
 	var multisigPub *kmultisig.LegacyAminoPubKey
 	if pubkey, ok := account.GetPubKey().(*kmultisig.LegacyAminoPubKey); ok {
 		multisigPub = pubkey
@@ -59,8 +59,10 @@ func CombineSignatures(cfg client.TxConfig, txn client.TxBuilder, signatures []s
 
 	multisigInfo := multisig.NewMultisig(len(multisigPub.PubKeys))
 
-	for idx, sig := range signatures {
-		multisig.AddSignature(multisigInfo, sig, idx)
+	for _, sig := range signatures {
+		if err := multisig.AddSignatureV2(multisigInfo, sig, multisigPub.GetPubKeys()); err != nil {
+			return nil, err
+		}
 	}
 
 	sig := signingtypes.SignatureV2{

@@ -30,9 +30,12 @@ func main() {
 	}
 	app.Commands = []cli.Command{
 		newAccountCommand,
+		newMultiSigAccountCommand,
 		newBankSendCommand,
 		newTxCommand,
 		signTxCommand,
+		partialSignTxCommand,
+		combineTxCommand,
 		broadcastTxCommand,
 		balanceCommand,
 		accountCommand,

@@ -18,6 +18,16 @@ var newAccountCommand = cli.Command{
 			Usage:    "base64 encoded secret key",
 			Required: false,
 		},
+		cli.BoolFlag{
+			Name:     "ledger",
+			Usage:    "use Ledger device",
+			Required: false,
+		},
+		cli.IntFlag{
+			Name:     "ledger_account",
+			Usage:    "account to use on Ledger",
+			Required: false,
+		},
 		cli.StringFlag{
 			Name:     "from_mnemonic",
 			Usage:    "space separated string of BIP39 mnemonics",
@@ -25,6 +35,28 @@ var newAccountCommand = cli.Command{
 		},
 	},
 	Action: newAccount,
+}
+
+var newMultiSigAccountCommand = cli.Command{
+	Name:     "multisig_account",
+	Category: "wallet",
+	Usage:    "Create a new multisig account.",
+	Description: `
+	Creates a new multisig account.
+	`,
+	Flags: []cli.Flag{
+		cli.IntFlag{
+			Name:     "threshold",
+			Usage:    "m-of-n threshold",
+			Required: true,
+		},
+		cli.StringSliceFlag{
+			Name:     "publickey",
+			Usage:    "list of public keys",
+			Required: true,
+		},
+	},
+	Action: newMultiSig,
 }
 
 var newBankSendCommand = cli.Command{
@@ -72,6 +104,61 @@ var signTxCommand = cli.Command{
 		},
 	}, common.SignTxFlags...),
 	Action: signTx,
+}
+
+var partialSignTxCommand = cli.Command{
+	Name:        "partial_sign_tx",
+	Category:    "wallet",
+	Usage:       "Sign a serialized transaction using a Ledger device.",
+	Description: "Sign a serialized transaction using a Ledger device.",
+	Flags: append([]cli.Flag{
+		cli.StringFlag{
+			Name:     "tx",
+			Usage:    "hex-encoded transaction",
+			Required: true,
+		},
+		cli.IntFlag{
+			Name:     "ledger_account",
+			Usage:    "account to use on Ledger",
+			Required: true,
+		},
+	}, common.SignTxFlags...),
+	Action: partialSignTx,
+}
+
+var combineTxCommand = cli.Command{
+	Name:        "combine_signatures",
+	Category:    "wallet",
+	Usage:       "Combines signatures for a multisignature account and finalizes a transaction.",
+	Description: "Combines signatures for a multisignature account and finalizes a transaction.",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:     "tx",
+			Usage:    "hex-encoded transaction",
+			Required: true,
+		},
+		cli.StringSliceFlag{
+			Name:     "signature",
+			Usage:    "json signatures",
+			Required: true,
+		},
+		cli.Uint64Flag{
+			Name:     "acc_number",
+			Usage:    "account number",
+			Required: true,
+		},
+		cli.Uint64Flag{
+			Name:     "acc_sequence",
+			Usage:    "account sequence",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:     "multisig_account",
+			Usage:    "JSON multisig account",
+			Required: true,
+		},
+	},
+	Action: combineTx,
 }
 
 var newTxCommand = cli.Command{
