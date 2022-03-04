@@ -4,8 +4,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -57,17 +55,17 @@ type EncodingConfig struct {
 
 // MakeEncodingConfig creates a new EncodingConfig.
 func MakeEncodingConfig() EncodingConfig {
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	amino := codec.NewLegacyAmino()
+	interfaceRegistry := types.NewInterfaceRegistry()
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	encCfg := EncodingConfig{
+	txCfg := tx.NewTxConfig(marshaler, tx.DefaultSignModes)
+
+	return EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         marshaler,
-		TxConfig:          tx.NewTxConfig(marshaler, tx.DefaultSignModes),
-		Amino:             codec.NewLegacyAmino(),
+		TxConfig:          txCfg,
+		Amino:             amino,
 	}
-	std.RegisterLegacyAminoCodec(encCfg.Amino)
-	std.RegisterInterfaces(encCfg.InterfaceRegistry)
-	return encCfg
 }
 
 // Supported Networks
