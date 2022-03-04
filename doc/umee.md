@@ -40,7 +40,7 @@ $ nebula --network=$NETWORK bank_send --recipient=umee14vcvlugaag99uac496acpdxuw
 
 (2)
 ```sh
-$ nebula --network=$NETWORK new_tx --messages=$MSG --acc_pubkey=02452611abd6595aefec1889a0244c28ebeb78e1fa490e1d61f6af1f3d7722899d --acc_number=93245 --acc_sequence=0 -fee=0 --gas_limit=80000 --timeout_height=0 --memo=""
+$ nebula --network=$NETWORK new_tx --messages=$MSG --acc_pubkey=02452611abd6595aefec1889a0244c28ebeb78e1fa490e1d61f6af1f3d7722899d --fee=0 --gas_limit=80000 --timeout_height=0 --memo=""
 ```
 
 (3)

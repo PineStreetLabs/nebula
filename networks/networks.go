@@ -7,15 +7,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authz "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+
 	umee "github.com/umee-network/umee/app"
-	"github.com/umee-network/umee/app/params"
 	leverageTypes "github.com/umee-network/umee/x/leverage/types"
 )
 
 // GetUmeeCfg returns the network parameters for the Umee network.
 func GetUmeeCfg() *Params {
 	modules := umee.ModuleBasics
-	encCfg := params.MakeEncodingConfig()
+	encCfg := MakeEncodingConfig()
 	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
 	leverageTypes.RegisterInterfaces(encCfg.InterfaceRegistry)
@@ -27,12 +27,7 @@ func GetUmeeCfg() *Params {
 		validatorHRP:        umee.ValidatorAddressPrefix,
 		consensusHRP:        umee.ConsNodeAddressPrefix,
 		VerifyAddressFormat: umee.VerifyAddressFormat,
-		encodingConfig: EncodingConfig{
-			InterfaceRegistry: encCfg.InterfaceRegistry,
-			Marshaler:         encCfg.Marshaler,
-			TxConfig:          encCfg.TxConfig,
-			Amino:             encCfg.Amino,
-		},
+		encodingConfig:      encCfg,
 	}
 }
 
@@ -43,9 +38,10 @@ func GetCosmosCfg() *Params {
 		authz.AppModuleBasic{},
 		auth.AppModuleBasic{},
 	)
+
 	encCfg := MakeEncodingConfig()
-	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	modules.RegisterLegacyAminoCodec(encCfg.Amino)
+	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
 	cryptocodec.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	return &Params{

@@ -2,9 +2,11 @@ package rpc
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/PineStreetLabs/nebula/account"
 	"github.com/PineStreetLabs/nebula/networks"
@@ -189,18 +191,81 @@ func (c *Client) Account(ctx context.Context, nCfg *networks.Params, address str
 	req := &authtypes.QueryAccountRequest{
 		Address: address,
 	}
-	resp, err := client.Account(ctx, req)
 
+	resp, err := client.Account(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	var acc authtypes.AccountI
-	if err := nCfg.EncodingConfig().InterfaceRegistry.UnpackAny(resp.Account, &acc); err != nil {
+	return queryAccounttoAccount(nCfg.EncodingConfig(), resp)
+}
+
+var errParseQueryAccountReponse = errors.New("cannot parse QueryAccountResponse")
+var errTypeConv = errors.New("issue converting type")
+
+func queryAccounttoAccount(encCfg networks.EncodingConfig, resp *authtypes.QueryAccountResponse) (*account.Account, error) {
+	// Convert to JSON
+	buf, err := encCfg.Marshaler.MarshalJSON(resp.Account)
+	if err != nil {
 		return nil, err
 	}
 
-	return account.NewAccount(acc.GetAddress().String(), acc.GetPubKey(), acc.GetAccountNumber(), acc.GetSequence())
+	var v map[string]interface{}
+	json.Unmarshal(buf, &v)
+
+	var addr string
+	var accNum uint64
+	var accSeq uint64
+
+	{
+		iface, exists := v["address"]
+		if !exists {
+			return nil, errParseQueryAccountReponse
+		}
+
+		val, ok := iface.(string)
+		if !ok {
+			return nil, errTypeConv
+		}
+
+		addr = val
+	}
+
+	{
+		iface, exists := v["account_number"]
+		if !exists {
+			return nil, errParseQueryAccountReponse
+		}
+
+		val, ok := iface.(string)
+		if !ok {
+			return nil, errTypeConv
+		}
+
+		accNum, err = strconv.ParseUint(val, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	{
+		iface, exists := v["sequence"]
+		if !exists {
+			return nil, errParseQueryAccountReponse
+		}
+
+		val, ok := iface.(string)
+		if !ok {
+			return nil, errTypeConv
+		}
+
+		accSeq, err = strconv.ParseUint(val, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return account.NewAccount(addr, nil, accNum, accSeq)
 }
 
 // NewStream fulfills the grpc.Client interface.

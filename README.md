@@ -8,10 +8,10 @@ Each app chain in the Cosmos ecosystem is defined by a series of modules. Module
 
 
 ## Network Support
-| Network      | Repository | Version | Documentation |
-|-----------|-----------|-----------|-----------|
-| Cosmos Hub (ATOM) | [Cosmos](https://github.com/cosmos/gaia)| - | - |
-| Umee |[Umee](https://github.com/umee-network/umee) | v0.3.0| [Umee](/doc/umee.md)
+| Network      | Repository  | Documentation |
+|-----------|-----------|-----------|
+| Cosmos Hub (ATOM) | [Cosmos](https://github.com/cosmos/gaia) | - |
+| Umee |[Umee](https://github.com/umee-network/umee) | [Umee](/doc/umee.md)
 
 ## Usage
     $ go install -v ./...
@@ -51,11 +51,14 @@ Documentation for usage is available in `/doc`:
         repay_asset     Create a repay asset transaction.
 
     wallet:
-        account       Create a new account.
-        bank_send     Create a Bank module MsgSend message.
-        new_tx        Combines a slice of messages into a new transaction.
-        sign_tx       Sign a serialized transaction.
-        broadcast_tx  Broadcast a transaction
+        account             Create a new account.
+        multisig_account    Create a new multisig account.
+        bank_send           Create a Bank module MsgSend message.
+        new_tx              Combines a slice of messages into a new transaction.
+        sign_tx             Sign a serialized transaction.
+        partial_sign_tx     Sign a serialized transaction using a Ledger device.
+        combine_signatures  Combines signatures for a multisignature account and finalizes a transaction.
+        broadcast_tx        Broadcast a transaction
 
     GLOBAL OPTIONS:
     --rpc value      the host:port endpoint of the Tendermint RPC server (e.g. 127.0.0.1:26657)
