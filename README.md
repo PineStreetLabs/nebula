@@ -25,6 +25,7 @@ Documentation for usage is available in `/doc`:
 * [Architecture](doc/arch.md)
 * [MultiSig Usage](doc/multisig.md)
 * [Umee Guide](doc/umee.md)
+* [Ledger Support](doc/ledger.md)
 
 ## CLI
     NAME:
