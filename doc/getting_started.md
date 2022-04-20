@@ -25,6 +25,15 @@ git clone https://github.com/umee-network/umee.git & cd umee
 starport chain serve -c starport.ci.yml
 ```
 
+## Usage
+
+```sh
+  # create a local binary
+  make build
+  # alternatively, install to the GOBIN path
+  go install -v ./...
+```
+
 ## Send & Receive
 
 Create a new account.

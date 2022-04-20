@@ -42,7 +42,7 @@ To sign a transaction with a MultiSig signer, the following steps must be taken:
 
 (1) parially sign the transaction
 ```sh
-nebula --network=cosmos partial_sign_tx --tx=$TX ...
+nebula --network=cosmos partial_sign_tx --tx=$TX --ledger_account 0 ...
 ```
 (2) combine signatures 
 ```sh
