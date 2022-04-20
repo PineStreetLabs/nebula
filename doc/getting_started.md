@@ -1,5 +1,29 @@
 # Getting Started
 
+## Running a local node
+Nebula can connect and interact with a local node using RPC.
+
+For example, to interact with the Umee network you will need to access an Umee node.
+
+Running an Umee node is easy with [Starport](https://github.com/tendermint/starport).
+
+1. Install Starport using `go install`
+
+```sh
+go install github.com/tendermint/starport@latest
+```
+
+2. Clone the Umee respoitory
+
+```sh
+git clone https://github.com/umee-network/umee.git & cd umee
+```
+
+2. Use Starport to serve the chain
+
+```sh
+starport chain serve -c starport.ci.yml
+```
 
 ## Send & Receive
 
