@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gogo/protobuf/proto"
 )
 
 // An Account is defined by a public and private key pair.
@@ -25,31 +26,37 @@ type Account struct {
 	sequence uint64
 	// number is the Account Number. This is a globally defined nonce that is associated with an account.
 	// The Account Number is initialized per network when it is "initialized" on the network (e.g. first receive).
-	number uint64
+	number     uint64
+	privateKey cryptotypes.PrivKey
 }
 
 // JSON is a helper struct for serialization.
 type JSON struct {
-	Address   string `json:"address"`
-	PublicKey string `json:"publickey"`
-	Sequence  uint64 `json:"sequence"`
-	Number    uint64 `json:"number"`
+	Address    string `json:"address"`
+	PublicKey  string `json:"publickey"`
+	Sequence   uint64 `json:"sequence"`
+	Number     uint64 `json:"number"`
+	PrivateKey string `json:"privatekey,omitempty"`
 }
 
 // MarshalJSON implements the marshaller interface.
 func (a *Account) MarshalJSON() ([]byte, error) {
-	var pk string
+	var pk, sk string
 
-	if a.publicKey == nil {
-		pk = ""
-	} else {
+	if a.publicKey != nil {
 		pk = fmt.Sprintf("%x", a.publicKey.Bytes())
 	}
+
+	if a.privateKey != nil {
+		sk = fmt.Sprintf("%x", a.privateKey.Bytes())
+	}
+
 	return json.Marshal(JSON{
-		Address:   a.address.String(),
-		PublicKey: pk,
-		Sequence:  a.sequence,
-		Number:    a.number,
+		Address:    a.address.String(),
+		PublicKey:  pk,
+		Sequence:   a.sequence,
+		Number:     a.number,
+		PrivateKey: sk,
 	})
 }
 
@@ -66,22 +73,41 @@ func (a *Account) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	pkBytes, err := hex.DecodeString(temp.PublicKey)
-	if err != nil {
-		return err
+	var pk cryptotypes.PubKey
+	if len(temp.PublicKey) != 0 {
+		pkBytes, err := hex.DecodeString(temp.PublicKey)
+		if err != nil {
+			return err
+		}
+
+		pk = &secp256k1.PubKey{
+			Key: pkBytes,
+		}
+
+	} else {
+		pk = &secp256k1.PubKey{}
 	}
 
-	pk := &secp256k1.PubKey{
-		Key: pkBytes,
-	}
+	var sk cryptotypes.PrivKey
+	if len(temp.PrivateKey) != 0 {
+		skBytes, err := hex.DecodeString(temp.PrivateKey)
+		if err != nil {
+			return err
+		}
 
-	*a = Account{}
+		sk = &secp256k1.PrivKey{
+			Key: skBytes,
+		}
+	} else {
+		sk = &secp256k1.PrivKey{}
+	}
 
 	*a = Account{
-		publicKey: pk,
-		number:    temp.Number,
-		sequence:  temp.Sequence,
-		address:   address,
+		number:     temp.Number,
+		sequence:   temp.Sequence,
+		address:    address,
+		privateKey: sk,
+		publicKey:  pk,
 	}
 
 	return nil
@@ -112,6 +138,7 @@ func (a *Account) SetSequence(accSeq uint64) {
 	a.sequence = accSeq
 }
 
+var errInvalidKey = errors.New("invalid key")
 var errMissingPublicKey = errors.New("missing public key")
 
 // NewAccount creates a new account.
@@ -129,22 +156,51 @@ func NewAccount(address string, publickey cryptotypes.PubKey, accNum, accSeq uin
 	}, nil
 }
 
+// Key is an interface for describing either a private or public key.
+type Key interface {
+	proto.Message
+	Bytes() []byte
+}
+
 // NewValidatorAccount creates an Account for the validator context.
-func NewValidatorAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+func NewValidatorAccount(cfg *networks.Params, key Key, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ValidatorHRP()
-	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+	return newAccount(hrp, cfg, key, accNum, accSeq)
 }
 
 // NewUserAccount creates an Account for the user/account context.
-func NewUserAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+func NewUserAccount(cfg *networks.Params, key Key, accNum, accSeq uint64) (acc *Account, err error) {
 	hrp := cfg.AccountHRP()
-	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+	return newAccount(hrp, cfg, key, accNum, accSeq)
 }
 
 // NewConsensusAccount creates an Account for the consensus context.
-func NewConsensusAccount(cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
+func NewConsensusAccount(cfg *networks.Params, key Key, accNum, accSeq uint64) (*Account, error) {
 	hrp := cfg.ConsensusHRP()
-	return fromPublicKey(hrp, cfg, pk, accNum, accSeq)
+	return newAccount(hrp, cfg, key, accNum, accSeq)
+}
+
+// newAccount creates a new account from either a public or private key.
+// If it is a private key, we include the key material in the returned Account.
+func newAccount(hrp string, cfg *networks.Params, key Key, accNum, accSeq uint64) (acc *Account, err error) {
+	switch k := key.(type) {
+	case cryptotypes.PrivKey:
+		acc, err = fromPublicKey(hrp, cfg, k.PubKey(), accNum, accSeq)
+		if err != nil {
+			return nil, err
+		}
+
+		acc.privateKey = k
+	case cryptotypes.PubKey:
+		acc, err = fromPublicKey(hrp, cfg, k, accNum, accSeq)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errInvalidKey
+	}
+
+	return acc, nil
 }
 
 func fromPublicKey(hrp string, cfg *networks.Params, pk cryptotypes.PubKey, accNum, accSeq uint64) (*Account, error) {
