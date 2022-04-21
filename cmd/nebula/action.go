@@ -48,7 +48,7 @@ func newAccount(ctx *cli.Context) (err error) {
 			return err
 		}
 
-		acc, err = account.NewUserAccount(cfg, sk.PubKey(), 0, 0)
+		acc, err = account.NewUserAccount(cfg, sk, 0, 0)
 		if err != nil {
 			return err
 		}
@@ -71,14 +71,14 @@ func newAccount(ctx *cli.Context) (err error) {
 		}
 
 		sk := &secp256k1.PrivKey{Key: key}
-		acc, err = account.NewUserAccount(cfg, sk.PubKey(), 0, 0)
+		acc, err = account.NewUserAccount(cfg, sk, 0, 0)
 		if err != nil {
 			return err
 		}
 	default:
 		sk := account.NewPrivateKey()
 
-		acc, err = account.NewUserAccount(cfg, sk.PubKey(), 0, 0)
+		acc, err = account.NewUserAccount(cfg, sk, 0, 0)
 		if err != nil {
 			return err
 		}

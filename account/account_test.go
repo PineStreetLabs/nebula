@@ -233,7 +233,10 @@ func TestMarshal(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		(&newAcct).UnmarshalJSON(buf)
+
+		if err := (&newAcct).UnmarshalJSON(buf); err != nil {
+			t.Fatal(err)
+		}
 
 		if len(newAcct.GetPubKey().Bytes()) != 0 {
 			t.Fatal("expected empty public key")
