@@ -16,7 +16,7 @@ go install github.com/tendermint/starport@latest
 2. Clone the Umee respoitory
 
 ```sh
-git clone https://github.com/umee-network/umee.git & cd umee
+git clone https://github.com/umee-network/umee.git && cd umee
 ```
 
 2. Use Starport to serve the chain
