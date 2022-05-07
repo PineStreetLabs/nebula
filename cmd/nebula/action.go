@@ -344,3 +344,18 @@ func signTx(ctx *cli.Context) (err error) {
 	fmt.Printf("%x\n", serializedTxn)
 	return nil
 }
+
+func getPublicKey(ctx *cli.Context) (err error) {
+	cfg, err := common.GetNetworkConfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	acc, err := ledger.Account(cfg, uint32(ctx.Int("ledger_account")))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%x\n", acc.GetPubKey().Bytes())
+	return nil
+}

@@ -192,6 +192,23 @@ var broadcastTxCommand = cli.Command{
 	Action: broadcastTx,
 }
 
+var getPublicKeyCommand = cli.Command{
+	Name:     "get_public_key",
+	Category: "wallet",
+	Usage:    "Gets a public key from a Ledger device.",
+	Description: `
+	Gets a public key from a Ledger device..
+	`,
+	Flags: []cli.Flag{
+		cli.IntFlag{
+			Name:     "ledger_account",
+			Usage:    "account to use on Ledger",
+			Required: true,
+		},
+	},
+	Action: getPublicKey,
+}
+
 var balanceCommand = cli.Command{
 	Name:     "balance",
 	Category: "data",

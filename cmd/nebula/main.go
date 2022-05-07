@@ -37,6 +37,7 @@ func main() {
 		partialSignTxCommand,
 		combineTxCommand,
 		broadcastTxCommand,
+		getPublicKeyCommand,
 		balanceCommand,
 		accountCommand,
 		bestBlockHeightCommand,
