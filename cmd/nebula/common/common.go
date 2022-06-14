@@ -17,6 +17,8 @@ func GetNetworkConfig(ctx *cli.Context) (*networks.Params, error) {
 		return networks.GetCosmosCfg(), nil
 	case networks.Umee:
 		return networks.GetUmeeCfg(), nil
+	case networks.Osmosis:
+		return networks.GetOsmosisCfg(), nil
 	case "":
 		return nil, errors.New("missing network")
 	default:

@@ -53,3 +53,27 @@ func GetCosmosCfg() *Params {
 		encodingConfig:      encCfg,
 	}
 }
+
+func GetOsmosisCfg() *Params {
+	modules := module.NewBasicManager(
+		bank.AppModuleBasic{},
+		authz.AppModuleBasic{},
+		auth.AppModuleBasic{},
+	)
+
+	encCfg := MakeEncodingConfig()
+	modules.RegisterLegacyAminoCodec(encCfg.Amino)
+	modules.RegisterInterfaces(encCfg.InterfaceRegistry)
+	cryptocodec.RegisterInterfaces(encCfg.InterfaceRegistry)
+
+	bech32Prefix := "osmo"
+
+	return &Params{
+		denom:               "uosmo",
+		accountHRP:          bech32Prefix,
+		validatorHRP:        bech32Prefix + "valoper",
+		consensusHRP:        bech32Prefix + "valcons",
+		VerifyAddressFormat: sdk.VerifyAddressFormat,
+		encodingConfig:      encCfg,
+	}
+}

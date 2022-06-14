@@ -74,4 +74,6 @@ const (
 	Cosmos string = "cosmos"
 	// Umee identifier.
 	Umee string = "umee"
+	// Osmosis identifier
+	Osmosis string = "osmosis"
 )
